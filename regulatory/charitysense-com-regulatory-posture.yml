@@ -1,0 +1,41 @@
+generated: '2026-09-19'
+method: searched
+probe: true
+source: https://data.charitysense.com/privacy
+signals: {}
+note: >-
+  No regulatory-posture signal could be verified from a public surface, so signals is empty and no per-signal
+  pointer is emitted. The one page that would normally carry data-subject-request, subprocessor or GPC statements
+  - https://data.charitysense.com/privacy (200) - is a Vite/React SPA whose served HTML contains only the title and
+  meta description ("What CharitySense collects, how we use it, and how nonprofit data is handled. Public data
+  tools; no accounts required."); the policy body is client-rendered and was not read, so nothing in it can be
+  recorded. The legacy agent manifest names it as privacy_policy_url and the ai-plugin manifest as legal_info_url.
+  The apex site's llms.txt describes a privacy-first design for the verification product ("no personal data
+  collection, no facial recognition, no surveillance of beneficiaries ... data remains sovereign to the project
+  site") - a marketing statement about the edge-AI product, not a data-residency, DSR or transparency artifact,
+  so it is recorded here as context and not as a signal.
+probes:
+- {url: 'https://data.charitysense.com/privacy', status: 200, result: 'SPA shell; body not server-rendered'}
+- {url: 'https://data.charitysense.com/terms', status: 404}
+- {url: 'https://data.charitysense.com/accessibility', status: 404}
+- {url: 'https://data.charitysense.com/legal/subprocessors', status: 404}
+- {url: 'https://data.charitysense.com/legal/dpa', status: 404}
+- {url: 'https://data.charitysense.com/security', status: 404}
+- {url: 'https://charitysense.com/privacy', status: 404}
+- {url: 'https://charitysense.com/terms', status: 404}
+- {url: 'https://charitysense.com/security', status: 404}
+- {url: 'https://charitysense.com/.well-known/security.txt', status: 404}
+- {url: 'https://data.charitysense.com/.well-known/security.txt', status: 404}
+harvested_artifacts_checked:
+- well-known/charitysense-com-well-known.yml (no security.txt on any host)
+- security/charitysense-com-vulnerability-disclosure.yml (not written - probe-security-programs.py found vdp=none trust=none)
+- lifecycle/charitysense-com-lifecycle.yml (no support period or versioning policy page)
+- conformance/charitysense-com-conformance.yml (no compliance program published)
+context_not_counted:
+  ai_disclosure_in_product_docs: >-
+    The provider labels its assistant operations as AI and tells agents that "AI POST operations are consequential"
+    (INSTRUCTIONS_FOR_AGENTS.md). This is operational guidance to integrators, not a user-facing AI transparency
+    statement, so ai_transparency is not recorded.
+  jurisdiction: >-
+    The legacy agent manifest declares the legal entity Osci Labs LLC, jurisdiction US, and the dataset scope is
+    U.S.-registered nonprofits; which regimes reach the company is decided by the Kin Score regime map, not here.

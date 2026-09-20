@@ -1,0 +1,87 @@
+# CharitySense
+
+> Independent, AI-powered verification for charitable infrastructure. CharitySense provides real-time monitoring that confirms funded hospitals, schools, water wells, and orphanages are operational — giving donors, foundations, NGOs, and governments proof that their investments are working.
+
+## About
+
+CharitySense is built by OsciLabs. It is fully independent — not affiliated with any charity, foundation, or government body. Verification uses AI-powered analysis of on-device sensor data and edge computing, not self-reported metrics.
+
+## Pages
+
+- [Homepage](https://charitysense.com): Landing page with platform overview, live impact metrics, how it works, audience solutions, privacy details, and a live dashboard preview.
+- [Insights](https://charitysense.com/insights): Articles on charitable infrastructure monitoring, donor transparency, and accountability in global development.
+- [Live Dashboard](https://site.charitysense.com): Real-time operational dashboards showing live data from monitored charitable infrastructure sites.
+
+## Homepage Sections
+
+The homepage is a single page with these sections (accessible via anchor links):
+
+- [Problem](https://charitysense.com/#problem): The $3 trillion blind spot — billions flow into nonprofits with almost no independent verification of outcomes.
+- [Impact Metrics](https://charitysense.com/#impact): Live deployment stats — 850+ hours of coverage, 12,400+ activities identified, 16,300+ people served, 42,000+ hours of care delivered.
+- [How It Works](https://charitysense.com/#how-it-works): Three-step process — Connect (edge device on existing cameras), Analyze (on-device AI processing), Verify (live dashboards accessible anywhere).
+- [Verticals](https://charitysense.com/#verticals): Monitored project types — hospitals/clinics, water wells, orphanages, schools, construction, agriculture.
+- [Solutions](https://charitysense.com/#solutions): Audience-specific value propositions for donors, foundations, NGOs/charities, and government agencies.
+- [Privacy](https://charitysense.com/#privacy): Privacy-first design — no personal data, no facial recognition, no surveillance, data sovereignty, edge-processed analytics.
+- [Get Started](https://charitysense.com/#get-started): Contact form for organizations interested in deploying CharitySense monitoring.
+
+## Live Impact Metrics
+
+These are real numbers from active CharitySense deployments:
+
+- **850+** Hours of Coverage
+- **12,400+** Activities Identified
+- **16,300+** People Served
+- **42,000+** Hours of Care Delivered
+
+## Solutions by Audience
+
+- **Donors**: Independent verification that funded projects are operational with real-time evidence and transparent impact reporting.
+- **Foundations**: Portfolio-wide grant monitoring across multiple charitable infrastructure investments and regions.
+- **NGOs & Charities**: Automated donor transparency tools providing verifiable proof of project impact without manual reporting overhead.
+- **Government**: Audit-ready operational data for agencies overseeing public charitable infrastructure and development programs.
+
+## Monitored Verticals
+
+- **Water Wells & Pumps**: Pump activity, estimated usage, user counts, peak times, uptime. Status: deploying.
+- **Hospitals & Clinics**: Patient traffic, department utilization, peak hours, staff patterns. Status: live.
+- **Schools**: Attendance proxies, classroom utilization, facility usage.
+- **Orphanages & Care Facilities**: Activity verification, safety indicators, operational status. Status: live.
+- **Construction & Infrastructure**: Progress milestones, activity detection, trend analysis.
+- **Agriculture & Farming**: Crop production, yield tracking, water efficiency, land use.
+
+## Key Differentiators
+
+- Fully independent — not affiliated with any charity, foundation, or government body.
+- AI-powered analysis of sensor data, not self-reported metrics.
+- Privacy-first design: no personal data collection, no facial recognition, no surveillance of beneficiaries.
+- All data remains sovereign to the project site with edge-processed analytics.
+- Works with intermittent power and connectivity in remote locations.
+- On-device processing — no cloud dependency for core analytics.
+- Runs on solar. Works on 3G and satellite.
+
+## Technology
+
+- Edge AI computing on existing camera feeds and sensors
+- No new infrastructure required at project sites
+- Built for intermittent power and connectivity (solar, 3G, satellite)
+- On-device processing with full data sovereignty — no video leaves the site
+- Motion vectors and selective snapshots, not continuous recording
+- Real-time operational dashboards accessible from anywhere
+- Powered by OsciLabs Vision
+
+## Insights & Articles
+
+Published:
+- [The $3 Trillion Blind Spot](https://charitysense.com/insights/the-3-trillion-blind-spot): There's $3 trillion a year flowing through the nonprofit sector that almost nobody is watching.
+- [The Cost of Bad Water](https://charitysense.com/insights/the-cost-of-bad-water): A dialysis center in eastern Ethiopia purifies water for $2 a session, enabling a $50 procedure that keeps patients alive. A visual essay on water quality, kidney disease, and what the numbers actually look like.
+
+Upcoming:
+- The Bakery That Failed: A charity funded a bakery in the Horn of Africa. Two projects in the same region, two completely different outcomes.
+- The Library on the Hill: A library in Awbarrah that doesn't look like it belongs there. That's the point.
+- She Stays: The people holding families together are almost always women. Most impact reports don't tell you that.
+- Twelve Million Camels and a Shrinking Farm Season: The Horn of Africa has the largest camel population in the world. The climate is shifting under their feet.
+- The Brain Drain Nobody Fixes: A hospital trains a technician. The technician leaves the country. The machines break. Nobody tracks it.
+
+## Contact
+
+Organizations can request a demo or get started via the contact form at https://charitysense.com/#get-started

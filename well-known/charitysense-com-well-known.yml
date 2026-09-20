@@ -1,0 +1,276 @@
+generated: '2026-09-19'
+method: probed
+source: >-
+  Live GET probes of the named /.well-known/* path list (plus /apis.json, /apis.yml and the root discovery
+  documents the provider's own Link header and api-catalog advertise) on five hosts, 2026-09-19. Every row is a
+  request that was actually issued; every status is the one returned. Files are saved verbatim.
+summary:
+  hosts_probed: 5
+  paths_probed: 76
+  documents_served: 12
+  note: >-
+    The discovery surface lives on data.charitysense.com (mirrored byte-for-byte by api.charitysense.com, whose
+    HTML canonical points at data.). It serves an RFC 9727 API catalog linkset with the RFC profile in its
+    content-type, an OpenAI-style ai-plugin.json import manifest, an A2A-shaped agent card at BOTH the canonical
+    and legacy paths (captured in a2a/), and root-level ai.txt, ai-profile.json, llms.txt, llms-full.txt and
+    mcp.json. Every response includes a Link header advertising service-desc (openapi.yaml/json), alternates
+    (llms.txt, ai.txt, ai-profile.json), service-meta (agent-card.json) and api-catalog. There is NO security.txt,
+    NO OAuth/OIDC metadata (the API uses static bearer tokens / X-CharitySense-API-Key, not OAuth), NO apis.json
+    and NO AAuth/UCP/ACP documents on any host. The apex charitysense.com (Next.js marketing site) and
+    www.charitysense.com serve a real 404 page for every well-known path except /llms.txt; site.charitysense.com
+    (live dashboards) 404s everything.
+  false_positive_check: >-
+    Every 404 on charitysense.com/www returned the same 23,662-byte Next.js not-found page, and every 404 on
+    data./api. returned a ~4.9KB SPA not-found shell; each 200 recorded below was parsed (JSON object / linkset /
+    text) before being counted as a document.
+hosts:
+- host: data.charitysense.com
+  role: API host, OpenAPI servers[] host, developer docs host, agent-card host
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 200
+    content_type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+    file: charitysense-com-data-api-catalog.json
+    standard: RFC 9727
+    note: >-
+      Linkset anchored at https://data.charitysense.com naming service-desc (openapi.yaml), three service-doc
+      links (/developers, /llms-full.txt, /agents), four service-meta links (agent.json, agent-card.json,
+      ai-profile.json, mcp.json) and a status link (/api/v2/health).
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    content_type: application/json
+    file: charitysense-com-data-ai-plugin.json
+    standard: OpenAI plugin manifest (schema_version v1)
+    note: auth.type none; api.type openapi -> https://data.charitysense.com/openapi.yaml; legal_info_url -> /privacy.
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json
+    file: ../a2a/charitysense-com-agent-card.json
+    standard: A2A AgentCard (protocolVersion 0.3.0)
+    note: Captured and graded in a2a/charitysense-com-a2a.yml.
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json
+    file: ../a2a/charitysense-com-agent-manifest-legacy.json
+    standard: pre-0.3 A2A discovery path (manifest-shaped body)
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /.well-known/mcp.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /ai.txt
+    status: 200
+    content_type: text/plain; charset=utf-8
+    file: charitysense-com-data-ai.txt
+    standard: vendor AI profile text (advertised by the provider's Link header, rel=alternate)
+  - path: /ai-profile.json
+    status: 200
+    content_type: application/json
+    file: charitysense-com-data-ai-profile.json
+    standard: vendor AI profile JSON (schema_version 1.0)
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain; charset=utf-8
+    file: ../llms/charitysense-com-llms.txt
+    standard: llms.txt
+  - path: /llms-full.txt
+    status: 200
+    content_type: text/markdown; charset=utf-8
+    file: null
+    note: Saved locally as llms/charitysense-com-llms-full.txt, which is gitignored by policy; not a pointer target.
+  - path: /mcp.json
+    status: 200
+    content_type: application/json
+    file: ../mcp/charitysense-com-mcp-compatibility-notice.json
+    note: '"mcp_server": false - an explicit compatibility notice that no MCP transport is exposed.'
+  - path: /openapi.yaml
+    status: 200
+    content_type: application/yaml
+    file: ../openapi/_original/charitysense-com-openapi-original.yaml
+  - path: /openapi.json
+    status: 200
+    content_type: application/json
+    file: ../openapi/_original/charitysense-com-openapi-original.json
+- host: api.charitysense.com
+  role: Second hostname for the same origin (HTML canonical -> data.charitysense.com; bodies byte-identical)
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 200
+    content_type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+    file: charitysense-com-data-api-catalog.json
+    note: cmp-identical to the data.charitysense.com body; the linkset anchor is still https://data.charitysense.com.
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    content_type: application/json
+    file: charitysense-com-data-ai-plugin.json
+    note: cmp-identical to the data.charitysense.com body.
+  - path: /.well-known/agent-card.json
+    status: 200
+    content_type: application/json
+    file: ../a2a/charitysense-com-agent-card.json
+    note: cmp-identical to the data.charitysense.com body.
+  - path: /.well-known/agent.json
+    status: 200
+    content_type: application/json
+    file: ../a2a/charitysense-com-agent-manifest-legacy.json
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain; charset=utf-8
+    file: ../llms/charitysense-com-llms.txt
+  - path: /openapi.yaml
+    status: 200
+    content_type: application/yaml
+    file: ../openapi/_original/charitysense-com-openapi-original.yaml
+    note: cmp-identical to the data.charitysense.com body.
+  - path: /openapi.json
+    status: 200
+    content_type: application/json
+    file: ../openapi/_original/charitysense-com-openapi-original.json
+- host: charitysense.com
+  role: Registrable domain; Next.js marketing site for the edge-AI verification product
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /security.txt
+    status: 404
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain; charset=UTF-8
+    file: ../llms/charitysense-com-website-llms.txt
+    note: A 6KB llms.txt describing the marketing site and the verification product, not the API.
+  - path: /openapi.json
+    status: 404
+  - path: /robots.txt
+    status: 200
+    content_type: text/plain; charset=UTF-8
+    file: null
+    note: 'User-agent: * / Allow: / / Sitemap: https://charitysense.com/sitemap.xml - nothing disallowed.'
+- host: www.charitysense.com
+  role: www alias of the apex (same Next.js site)
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain; charset=UTF-8
+    file: ../llms/charitysense-com-website-llms.txt
+- host: site.charitysense.com
+  role: Live operational dashboards for the verification product (linked from the apex as "Live Dashboard")
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/ucp.json
+    status: 404
+  - path: /.well-known/acp.json
+    status: 404
+  - path: /.well-known/aauth-resource.json
+    status: 404
+  - path: /.well-known/apis.json
+    status: 404
+  - path: /apis.json
+    status: 404
+  - path: /apis.yml
+    status: 404
+  - path: /llms.txt
+    status: 404
+  - path: /openapi.json
+    status: 404

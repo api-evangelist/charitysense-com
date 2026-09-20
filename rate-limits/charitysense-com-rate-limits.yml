@@ -1,0 +1,93 @@
+generated: '2026-09-19'
+method: probed
+source: 'Live GET https://data.charitysense.com/api/v2/search?Query=red+cross&Limit=2 on 2026-09-19 (200)'
+docs: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+limit_count: 3
+summary: >-
+  Daily allowances, not per-second throttles. Anonymous research reads share a 1,000 request per UTC day
+  allowance per client, signalled on every successful response with IETF-style RateLimit-Limit /
+  RateLimit-Remaining / RateLimit-Reset headers (reset is the next UTC midnight as epoch seconds). Paid keys carry
+  two separate daily allowances - Data and Advanced - whose "normal paid defaults" are 100,000 and 250; a key can
+  read its own Limit / Used / Remaining / ResetAt at GET /api/v2/usage without spending either. Exhaustion is
+  429; the provider says to wait before retrying.
+headers:
+  observed:
+  - name: RateLimit-Limit
+    value: '1000'
+  - name: RateLimit-Remaining
+    value: '999'
+  - name: RateLimit-Reset
+    value: '1789948800'
+    note: Epoch seconds for 2026-09-21T00:00:00Z, i.e. the next UTC calendar day - an absolute timestamp, not delta-seconds.
+  retry_after: not observed (allowance was not exhausted during the probe) and not declared in the contract
+  declared_in_openapi: false
+  note: The contract declares no response headers at all; the headers above were observed live on an anonymous public read.
+exhaustion:
+  status: 429
+  body: detail envelope (see errors/charitysense-com-problem-types.yml)
+  guidance: '"For 429, wait before retrying." - INSTRUCTIONS_FOR_AGENTS.md'
+rate_limits:
+- name: Public research reads
+  scope: per-client
+  tier: anonymous
+  limit: 1000
+  window: 1 UTC calendar day
+  metric: request
+  burst: null
+  applies_to:
+  - GET /api/v2/health
+  - GET /api/v2/search
+  - GET /api/v2/charity/{ein}/page
+  - GET /api/v2/charity/{ein}/sections/{SectionId}
+  - GET /api/v2/charity/{ein}/filings
+  evidence: >-
+    info.description: "Research data reads are available without a token and are limited to 1,000 requests per UTC
+    day per client." Confirmed live by RateLimit-Limit: 1000 on an anonymous search.
+  domains: [data.charitysense.com, api.charitysense.com]
+- name: Paid key - Data allowance
+  scope: per-key
+  tier: paid
+  limit: 100000
+  window: 1 UTC calendar day
+  metric: request
+  burst: null
+  applies_to: The same research reads when made with a paid key.
+  evidence: >-
+    INSTRUCTIONS_FOR_AGENTS.md: "Paid keys have per-key daily Data and Advanced limits; the normal paid defaults are
+    100,000 data requests and 250 Advanced requests." UsageSummary.Data reports Limit/Used/Remaining (Limit may
+    also be the string "Unlimited").
+  note: Stated as a default, not a guarantee; per-key limits are set by the provider.
+- name: Paid key - Advanced allowance
+  scope: per-key
+  tier: paid
+  limit: 250
+  window: 1 UTC calendar day
+  metric: request
+  burst: null
+  applies_to:
+  - GET /api/v2/stats
+  - GET /api/v2/top-lists
+  - GET /api/v2/charity/{ein}/brand-icon
+  - GET /api/v2/charity/{ein}/money-network
+  - GET /api/v2/charity/{ein}/funders
+  - GET /api/v2/charity/{ein}/grantees
+  - GET /api/v2/charity/{ein}/awards
+  - GET /api/v2/charity/{ein}/subawards
+  - GET /api/v2/funders/for-cohort
+  - GET /api/v2/charity/{ein}/discovery
+  - GET /api/v2/charity/diligence-summary
+  - GET /api/v2/assistant/capabilities
+  - POST /api/v2/charity-question
+  - POST /api/v2/agent-feedback
+  - POST /api/v2/assistant/chat/stream
+  evidence: >-
+    INSTRUCTIONS_FOR_AGENTS.md "Paid Advanced" inventory plus the 250 default above; anonymous callers "have no
+    Advanced allowance and receive 403 EntitlementRequired" (observed live on /api/v2/stats and POST
+    /api/v2/agent-feedback).
+  note: getApiUsage (GET /api/v2/usage) requires a key but consumes neither allowance.
+usage_endpoint:
+  operation: getApiUsage
+  path: GET /api/v2/usage
+  auth: paid key required (401 ApiKeyRequired anonymously - observed)
+  metered: false
+  response_fields: [Day, ResetAt, Tier (Paid | Site | Internal), Data.Limit, Data.Used, Data.Remaining, Advanced.Limit, Advanced.Used, Advanced.Remaining]

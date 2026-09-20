@@ -1,0 +1,404 @@
+generated: '2026-09-19'
+method: probed
+source: https://data.charitysense.com/.well-known/agent-card.json
+card:
+  file: a2a/charitysense-com-agent-card.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: data.charitysense.com
+  note: 'CharitySense serves the card from its API/data host, not the apex: charitysense.com and www.charitysense.com
+    return a real 404 for both /.well-known/agent-card.json and /.well-known/agent.json, while data.charitysense.com
+    serves BOTH the canonical agent-card.json and the pre-0.3 legacy agent.json (a differently-shaped ''agent manifest''
+    with schema_version 1.0, legal-entity and discovery-URL fields; saved verbatim as a2a/charitysense-com-agent-manifest-legacy.json).
+    api.charitysense.com is a byte-identical mirror of data.charitysense.com (cmp-verified for the card, the OpenAPI,
+    the api-catalog and ai-plugin) whose HTML sets canonical to data.charitysense.com, so it is the same origin
+    under a second name, not a second card. Ownership is not in question: the card''s provider.organization is ''CharitySense''
+    with provider.url https://charitysense.com, the legacy manifest names the legal entity Osci Labs LLC (US EIN
+    99-0651763), the OpenAPI it binds to declares servers[] https://data.charitysense.com with contact mazhar@charitysense.com,
+    the apex homepage links to data.charitysense.com and says the product is built by OsciLabs, and the a2aregistry.org
+    listing that surfaced this provider points at this exact host.'
+  registry_lead: https://data.charitysense.com/.well-known/agent.json (a2aregistry.org, fetched 2026-09-19)
+x-evidence:
+  fetched: '2026-09-19'
+  url: https://data.charitysense.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+  body_bytes: 10134
+  body_parses_as: JSON object with AgentCard shape (name, url, version, protocolVersion, capabilities, skills, provider,
+    supportedInterfaces all present)
+  link_header: rel=service-desc -> /openapi.yaml + /openapi.json; rel=alternate -> /llms.txt, /ai.txt, /ai-profile.json;
+    rel=service-meta -> /.well-known/agent-card.json; rel=api-catalog -> /.well-known/api-catalog
+  corroborating_probes:
+  - url: https://data.charitysense.com/.well-known/agent.json
+    http_status: 200
+    note: Legacy path also served; different (manifest-style) shape, same protocolVersion 0.3.0, same 9 skills,
+      adds legalEntity, contact, privacy_policy_url and custom_gpt_url.
+  - url: https://api.charitysense.com/.well-known/agent-card.json
+    http_status: 200
+    note: Byte-identical mirror of the data host.
+  - url: https://api.charitysense.com/.well-known/agent.json
+    http_status: 200
+    note: Byte-identical mirror of the data host.
+  - url: https://charitysense.com/.well-known/agent-card.json
+    http_status: 404
+  - url: https://charitysense.com/.well-known/agent.json
+    http_status: 404
+  - url: https://www.charitysense.com/.well-known/agent-card.json
+    http_status: 404
+  - url: https://www.charitysense.com/.well-known/agent.json
+    http_status: 404
+  - url: https://data.charitysense.com/.well-known/api-catalog
+    http_status: 200
+    note: The RFC 9727 linkset independently lists the card under service-meta with title "A2A Agent Card".
+  - url: https://data.charitysense.com/openapi.yaml
+    http_status: 200
+    note: The interface the card binds to; 21 operations, servers[] https://data.charitysense.com.
+agent_card:
+  name: CharitySense
+  description: Agent-ready nonprofit due diligence surface over public U.S. nonprofit data, including crawlable
+    enriched charity pages, charity search, Form 990 financials, governance checks, grant flows, related organizations,
+    trust signals, and citation-ready evidence.
+  version: 1.3.0
+  url: https://data.charitysense.com
+  documentation_url: https://data.charitysense.com/agents
+  icon_url: https://data.charitysense.com/logo.svg
+  provider:
+    organization: CharitySense
+    url: https://charitysense.com
+  protocol_version: 0.3.0
+  preferred_transport: OPENAPI
+  supported_interfaces:
+  - protocolBinding: OPENAPI
+    url: https://data.charitysense.com/openapi.yaml
+    protocolVersion: 0.3.0
+  additional_interfaces:
+  - transport: OPENAPI
+    url: https://data.charitysense.com/openapi.yaml
+  - transport: HTTP+JSON
+    url: https://data.charitysense.com
+  capabilities:
+    streaming: false
+    pushNotifications: false
+    stateTransitionHistory: false
+    extendedAgentCard: false
+    supportsAuthenticatedExtendedCard: false
+  capability_extensions:
+  - uri: https://spec.openapis.org/oas/v3.1.0
+    description: CharitySense HTTP API contract at https://data.charitysense.com/openapi.yaml.
+    required: false
+  default_input_modes:
+  - text/plain
+  - application/json
+  default_output_modes:
+  - application/json
+  - text/plain
+  security_schemes: {}
+  security: []
+  auth:
+    type: none
+  read_only: false
+  notice: CharitySense exposes public research reads plus paid, explicitly consequential Advanced operations over
+    OpenAPI/HTTP. It does not expose an A2A JSON-RPC task endpoint. Use openapi.yaml for the callable operation
+    and security contract.
+  capability_tags:
+  - nonprofit_search
+  - irs_990_analysis
+  - charity_comparison
+  - donor_research
+  - financial_metrics
+  - governance_review
+  - zakat_and_religious_giving_research
+  - beneficiary_geography_search
+  - public_charity_profile_pages
+  - enhanced_json_ld
+  agent_identity_headers:
+  - X-Agent-Name
+  - X-Agent-Version
+  - X-Agent-Platform
+  - X-Agent-Stack
+  - X-Agent-Owner
+  - X-Agent-Contact
+  - X-Agent-Purpose
+  - X-Agent-Community
+  - X-Agent-Session
+  feedback_url: https://data.charitysense.com/api/v2/agent-feedback
+  primary_tools:
+  - name: searchCharities
+    method: GET
+    path: /api/v2/search
+    description: Use first with the required Query parameter for charity names, EINs, donor intent, geography, causes,
+      and ranking.
+  - name: getCharityPage
+    method: GET
+    path: /api/v2/charity/{ein}/page
+    description: Get the bounded selected-form profile shell, live verdict, and available section manifest.
+  - name: getCharitySection
+    method: GET
+    path: /api/v2/charity/{ein}/sections/{SectionId}
+    description: Get one section whose Id was advertised by getCharityPage.
+  - name: getCharityFilings
+    method: GET
+    path: /api/v2/charity/{ein}/filings
+    description: Page through filing metadata for one available form context.
+  - name: getCharityMoneyNetwork
+    method: GET
+    path: /api/v2/charity/{ein}/money-network
+    description: Page through exact latest directed counterparty evidence.
+  - name: discoverRelatedOrganizations
+    method: GET
+    path: /api/v2/charity/{ein}/discovery
+    description: Discover organizations related by cause, region, mission, or explicit Intent.
+  - name: getDatasetStats
+    method: GET
+    path: /api/v2/stats
+    description: Get dataset-wide counts and aggregate sector totals.
+  - name: sendAgentFeedback
+    method: POST
+    path: /api/v2/agent-feedback
+    description: 'Advanced action: send agent identity, purpose, task, result quality, and desired-data feedback
+      to improve CharitySense.'
+  skill_count: 9
+  skills:
+  - id: cite_public_charity_profile
+    name: Cite the public charity profile
+    description: Use the public /charity/{ein} page as the citation target for crawlable mission, programs, sector,
+      operating places, leadership, governance, impact, source evidence, and enhanced JSON-LD where available.
+    tags:
+    - public_profile
+    - citation
+    - json_ld
+    - seo
+    - geo
+    examples:
+    - Cite the public CharitySense profile for EIN 954453134.
+    - Use the public profile page for mission and program evidence.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: search_charities
+    name: Search U.S. nonprofits
+    description: Search CharitySense public nonprofit data and Form 990 signals by charity name, EIN, mission, cause,
+      donor intent, geography, revenue, rating, state, or category.
+    tags:
+    - nonprofit
+    - charity
+    - donor_research
+    - irs_990
+    examples:
+    - Find trustworthy clean water charities with strong financials.
+    - Search for U.S. charities serving Gaza or Pakistan.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: get_charity_profile
+    name: Get charity identity and trust profile
+    description: 'Return the bounded first-paint charity page: selected form context, identity, mission, location,
+      live verdict, and the manifest of sections available for lazy retrieval.'
+    tags:
+    - ein_lookup
+    - nonprofit_profile
+    - identity
+    - trust
+    examples:
+    - Get the profile for EIN 530196605.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: get_charity_section
+    name: Get an advertised charity section
+    description: Retrieve one section advertised by the charity page, such as financials, governance, leadership,
+      schedules, filing consistency, related organizations, or web evidence.
+    tags:
+    - sections
+    - evidence
+    - financials
+    - governance
+    examples:
+    - Fetch the MoneyFlow section advertised for EIN 131644147.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: get_charity_filings
+    name: List charity filings
+    description: List filing metadata for one available form context, with cursor-based retrieval for historical
+      filing records.
+    tags:
+    - filings
+    - history
+    - form_contexts
+    examples:
+    - List Form 990PF filings for EIN 530196605.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: analyze_money_flows
+    name: Analyze money flows and grants
+    description: Page through exact latest directed counterparties and graph evidence. Use an advertised MoneyFlow
+      section for the selected filing's complete revenue and expense presentation.
+    tags:
+    - grants
+    - money_flows
+    - schedule_f
+    - schedule_i
+    - fundraising
+    examples:
+    - Where did this charity's grants go in its latest filing?
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: discover_related_organizations
+    name: Discover related organizations
+    description: Discover other organizations related by the selected profile's cause, mission, or an explicit discovery
+      intent.
+    tags:
+    - discovery
+    - related_organizations
+    - cause
+    - mission
+    examples:
+    - Find organizations related to EIN 530196605.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: get_dataset_stats
+    name: Get dataset-wide statistics
+    description: Retrieve dataset scale and aggregate public corpus totals, including organization count, filing
+      count, sector revenue, and program spending.
+    tags:
+    - dataset_stats
+    - coverage
+    - aggregate_financials
+    examples:
+    - How many nonprofits and filings does CharitySense cover?
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+  - id: send_agent_feedback
+    name: Send result or data feedback
+    description: Let CharitySense know when an agent needed different data, better ranking, clearer fields, missing
+      context, or a new endpoint for its task.
+    tags:
+    - feedback
+    - agent_identity
+    - api_improvement
+    examples:
+    - Report that a disaster-relief query needed grant-recipient geography.
+    - Tell CharitySense that an answer needed clearer published zakat-policy evidence.
+    input_modes:
+    - text/plain
+    - application/json
+    output_modes:
+    - application/json
+    - text/plain
+    security_requirements: []
+conformance:
+  spec: A2A 1.0.0
+  grade: conformant
+  protocol_version: 0.3.0
+  preferred_transport: OPENAPI
+  transport: OPENAPI (via supportedInterfaces[0].protocolBinding and preferredTransport) - not an A2A-defined transport
+  a2a_callable: false
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  optional_fields:
+    default_input_modes: true
+    default_output_modes: true
+    preferred_transport: true
+  grade_basis: 'Graded against the A2A 1.0.0 hard checks. capabilities is an OBJECT (pass) with streaming, pushNotifications,
+    stateTransitionHistory, extendedAgentCard, supportsAuthenticatedExtendedCard all false and one extension entry.
+    protocolVersion is present at the top level as "0.3.0" (pass) and repeated on supportedInterfaces[0]. skills
+    is an ARRAY (pass) of 9 fully-populated skills, each with id, name, description, tags, examples, inputModes,
+    outputModes and an (empty) securityRequirements list. All three optional discriminators - defaultInputModes,
+    defaultOutputModes and preferredTransport - are declared. The structural grade is therefore conformant. READ
+    THE DEVIATIONS BEFORE TREATING THIS AS AN A2A AGENT: the card''s own `notice` field states that CharitySense
+    does not expose an A2A JSON-RPC task endpoint, every declared interface is the OpenAPI/HTTP contract, and the
+    provider''s INSTRUCTIONS_FOR_AGENTS.md calls this document an ''OpenAPI compatibility card; no A2A task endpoint''.
+    It is a structurally valid AgentCard describing a REST API, not a reachable A2A agent.'
+  deviations:
+  - field: preferredTransport / supportedInterfaces[].protocolBinding
+    observed: '"OPENAPI"'
+    note: A2A 1.0.0 defines JSONRPC, GRPC and HTTP+JSON transports; OPENAPI is not one of them. An A2A client that
+      dispatches on transport will find nothing it can speak. additionalInterfaces[1] declares HTTP+JSON at https://data.charitysense.com,
+      but that host serves the REST API, not the A2A HTTP+JSON binding (SendMessage / GetTask methods), so it is
+      not a usable A2A interface either.
+  - field: notice
+    observed: '"It does not expose an A2A JSON-RPC task endpoint. Use openapi.yaml for the callable operation and
+      security contract."'
+    note: The provider says in the card itself that the card is not backed by an A2A endpoint. This is honest and
+      useful, and it is why a2a_callable is false despite the conformant structural grade.
+  - field: url
+    observed: https://data.charitysense.com
+    note: The A2A url is meant to be the agent endpoint; here it is the REST API origin. GET returns the SPA landing
+      page.
+  - field: securitySchemes / security
+    observed: '{} and []'
+    note: The card declares no security while the API it binds to requires a bearer token or X-CharitySense-API-Key
+      for every Advanced operation, including the sendAgentFeedback primaryTool and three POST skills. The auth
+      requirement is described in prose (api.auth, operation_policy) rather than machine-readably. skills[].securityRequirements
+      are all empty for the same reason.
+  - field: readOnly
+    observed: 'false'
+    note: 'Correct: three skills (send_agent_feedback plus the assistant operations behind analyze/discover) map
+      to POSTs the provider labels consequential and gates behind confirmation.'
+  - field: capabilities.extensions[0].uri
+    observed: https://spec.openapis.org/oas/v3.1.0
+    note: Uses the A2A extension slot to point at the OpenAPI specification URI, with description naming the contract
+      URL. Non-standard use of extensions, but harmless and self-describing.
+  - field: non-A2A top-level keys
+    observed: api, discovery, coverage, citation, primaryTools, capabilityTags, agentIdentity, feedbackUrl, readOnly,
+      auth, notice
+    note: Eleven vendor fields sit beside the A2A fields at the top level rather than under an extension. A strict
+      reader ignores them; a lenient one gets a useful discovery map (llms.txt, ai.txt, instructions, api-catalog,
+      sitemap, citation template).
+  - field: legacy /.well-known/agent.json
+    observed: served, different shape
+    note: 'The legacy path is not a copy of the canonical card: it is a manifest with schema_version 1.0, legal_name,
+      legalEntity (Osci Labs LLC, EIN 99-0651763), contact, support_url, privacy_policy_url, custom_gpt_url and
+      a primary_tools list. It still passes the same three hard checks (capabilities object, protocolVersion, skills
+      array). Saved verbatim beside the card.'
+surface_relationship:
+  note: 'CharitySense publishes ONE callable surface - the 21-operation REST API at https://data.charitysense.com
+    (openapi/charitysense-com-openapi.yml) - and describes it through several agent-facing documents: this A2A-shaped
+    card, the legacy agent manifest, an ai-plugin.json import manifest, an ai-profile.json, ai.txt, llms.txt, llms-full.txt,
+    INSTRUCTIONS_FOR_AGENTS.md and an RFC 9727 api-catalog. There is no MCP server (/mcp.json is an explicit ''mcp_server:
+    false'' compatibility notice) and no A2A task endpoint. The card''s 9 skills map onto the primaryTools list
+    and then onto OpenAPI operationIds: search_charities -> searchOrganizations, get_charity_profile -> getCharityPage,
+    get_charity_section -> getCharitySection, get_charity_filings -> getCharityFilings, analyze_money_flows -> getCharityMoneyNetwork,
+    discover_related_organizations -> discoverRelatedOrganizations, get_dataset_stats -> getStats, send_agent_feedback
+    -> submitAgentFeedback; cite_public_charity_profile targets the HTML /charity/{ein} pages rather than an API
+    operation.'

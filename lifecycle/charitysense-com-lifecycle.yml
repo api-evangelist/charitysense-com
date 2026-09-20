@@ -1,0 +1,53 @@
+generated: '2026-09-19'
+method: searched
+source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+derived_from: openapi/_original/charitysense-com-openapi-original.yaml
+versioning:
+  scheme: uri-path
+  current_version: v2
+  path_prefix: /api/v2
+  document_version: 3.0.0
+  spec_url: https://data.charitysense.com/openapi.yaml
+  base_url: https://data.charitysense.com
+  policy_published: false
+  note: >-
+    Every path is prefixed /api/v2 while info.version is "3.0.0" and the api-catalog titles the spec "CharitySense
+    API v2 - OpenAPI", so the path version and the document version have diverged. The health endpoint reports
+    SchemaVersion 2 and a CompiledAt timestamp (2026-09-15T11:10:08) for the published data overlay, which is a
+    data-release version rather than an API version. No written versioning policy exists.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  note: >-
+    Zero of 21 operations carry deprecated: true; no Sunset or Deprecation response header is declared (the
+    contract declares no response headers at all); /changelog 404s on data.charitysense.com and charitysense.com.
+    No Deprecation pointer is emitted.
+sla:
+  published: false
+  note: No uptime target, SLA or support-tier page found; paid access is arranged through /contact?interest=api-access.
+status_page: null
+status_page_note: >-
+  No status page. The RFC 9727 api-catalog's `status` relation points at https://data.charitysense.com/api/v2/health
+  (200 {"Status":"Healthy","SchemaVersion":2,"CompiledAt":"2026-09-15T11:10:08.915000","Documents":2222250}), which
+  is a liveness probe, not an incident/status page, so no StatusPage pointer is emitted.
+changelog:
+  published: false
+  probes:
+  - url: https://data.charitysense.com/changelog
+    status: 404
+  - url: https://charitysense.com/changelog
+    status: 404
+  - url: https://data.charitysense.com/status
+    status: 404
+  - url: https://charitysense.com/status
+    status: 404
+data_freshness:
+  source: https://data.charitysense.com/api/v2/health
+  compiled_at: '2026-09-15T11:10:08.915000'
+  documents: 2222250
+  note: >-
+    The provider warns in every discovery document that "IRS Form 990 data is historical and can lag current
+    operations" and tells agents to use /api/v2/stats (an Advanced operation) instead of hard-coding counts.

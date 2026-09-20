@@ -1,0 +1,52 @@
+generated: '2026-09-19'
+method: searched
+source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+docs:
+- https://data.charitysense.com/llms-full.txt
+- https://data.charitysense.com/contact?interest=api-access
+plan_count: 2
+currency: USD
+prices_published: false
+model: Free metered public tier plus a paid key arranged through a contact form; no published price list.
+probes:
+- url: https://data.charitysense.com/pricing
+  status: 404
+- url: https://charitysense.com/pricing
+  status: 404
+- url: https://data.charitysense.com/contact?interest=api-access
+  status: 200
+  note: Contact form (SPA); the access request path the API's 403 UpgradeURL points at.
+plans:
+- id: public-research
+  name: Public research reads
+  price: 0
+  currency: USD
+  period: null
+  signup: none - no account or key required
+  included:
+  - GET /api/v2/health, /search, /charity/{ein}/page, /charity/{ein}/sections/{SectionId}, /charity/{ein}/filings
+  - 1,000 requests per UTC calendar day per client
+  - RateLimit-Limit / RateLimit-Remaining / RateLimit-Reset headers on every response
+  excluded:
+  - All Advanced operations (derived reads, assistant, feedback) - 403 EntitlementRequired
+  evidence: >-
+    OpenAPI info.description: "Research data reads are available without a token and are limited to 1,000
+    requests per UTC day per client." Confirmed live 2026-09-19.
+- id: paid-key
+  name: Paid API key (Advanced access)
+  price: null
+  currency: USD
+  period: null
+  signup: https://data.charitysense.com/contact?interest=api-access
+  included:
+  - All 21 operations, sent with Authorization Bearer <token> or X-CharitySense-API-Key
+  - 'Default daily allowances: 100,000 Data requests and 250 Advanced requests per key ("normal paid defaults")'
+  - GET /api/v2/usage to read the key's own Limit / Used / Remaining / ResetAt without consuming allowance
+  - UsageSummary.Tier values Paid | Site | Internal suggest additional non-public tiers exist
+  evidence: >-
+    INSTRUCTIONS_FOR_AGENTS.md: "Paid keys have per-key daily Data and Advanced limits; the normal paid defaults are
+    100,000 data requests and 250 Advanced requests. Request access at
+    https://data.charitysense.com/contact?interest=api-access."
+  note: >-
+    No price, billing period or overage rate is published anywhere reachable (no /pricing on either host, no
+    price in the agent card, ai-profile, llms.txt or instructions). price is null rather than guessed.

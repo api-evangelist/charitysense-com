@@ -1,23 +1,165 @@
 aid: charitysense-com
 name: CharitySense
-description: 'CharitySense is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  CharitySense is a product of Osci Labs LLC (US) with two public surfaces. charitysense.com is an edge-AI
+  verification platform that plugs into cameras already installed at funded hospitals, schools, water wells and
+  orphanages, processes video on-device, and gives donors, foundations, NGOs and governments live dashboards
+  proving a funded project is actually running. data.charitysense.com is CharitySense Data, an agent-ready
+  nonprofit due-diligence API over public IRS Form 990 filings for about 2.2 million U.S. nonprofits: charity
+  search, bounded profile pages with lazily fetched sections, filing history, money-network and grant-flow
+  evidence, related-organization discovery, dataset statistics and a paid assistant. It is a 21-operation OpenAPI
+  3.1.0 contract at https://data.charitysense.com/openapi.yaml; research reads need no key (1,000 per UTC day),
+  Advanced operations need a paid key. The host also serves an RFC 9727 API catalog, an A2A-shaped agent card,
+  ai-plugin.json and llms.txt.
 url: https://raw.githubusercontent.com/api-evangelist/charitysense-com/refs/heads/main/apis.yml
+image: https://data.charitysense.com/logo.svg
 x-type: company
 x-source: harvest:a2a-registry
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-19 (local-v3; was a2a-registry harvest stub)
 specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
+- Nonprofits
+- Charities
+- Due Diligence
+- IRS Form 990
+- Donor Research
+- Grants
+- Philanthropy
+- Open Data
+- Agents
+- A2A
+- Impact Verification
+- Edge AI
+- United States
 - Company
-apis: []
+apis:
+- aid: charitysense-com:charitysense-data-api
+  name: CharitySense Data API
+  description: >-
+    Canonical REST API for U.S. nonprofit due diligence compiled from public IRS Form 990 filings and official-source
+    profile enrichment. 21 operations across five tags: Profiles (bounded charity page, advertised sections, filings,
+    brand icon, money network, awards, subawards, grantees, funders), Discovery (identity and discovery search, top
+    lists, cohort funders, related-organization discovery, bulk diligence summary), Dataset (health, stats), Assistant
+    (charity question, agent feedback, capabilities, SSE chat stream) and Usage (per-key daily allowance). Public
+    research GETs need no token and are limited to 1,000 requests per UTC day per client; derived reads and every
+    POST are Advanced operations that require a paid bearer token or X-CharitySense-API-Key and return 403
+    EntitlementRequired anonymously. Responses use UpperCamelCase fields. Published as OpenAPI 3.1.0 at
+    https://data.charitysense.com/openapi.yaml with servers[] https://data.charitysense.com.
+  humanURL: https://data.charitysense.com/developers
+  baseURL: https://data.charitysense.com
+  image: https://data.charitysense.com/logo.svg
+  position: Producing
+  tags:
+  - Nonprofits
+  - Charities
+  - Due Diligence
+  - IRS Form 990
+  - Donor Research
+  - Grants
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/charitysense-com-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted, YAML)
+    url: https://data.charitysense.com/openapi.yaml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted, JSON)
+    url: https://data.charitysense.com/openapi.json
+  - type: Documentation
+    url: https://data.charitysense.com/developers
+  - type: APIReference
+    name: Swagger UI
+    url: https://data.charitysense.com/docs
+  - type: APIReference
+    name: ReDoc
+    url: https://data.charitysense.com/redoc
+  - type: GettingStarted
+    name: Agent integration guide
+    url: https://data.charitysense.com/agents
+  - type: AgentInstructions
+    url: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+  - type: Overlay
+    url: overlays/charitysense-com-data-api-overlay.yaml
+  - type: ErrorCatalog
+    url: errors/charitysense-com-problem-types.yml
+  - type: DataModel
+    url: data-model/charitysense-com-data-model.yml
+  - type: Conventions
+    url: conventions/charitysense-com-conventions.yml
+  - type: Lifecycle
+    url: lifecycle/charitysense-com-lifecycle.yml
+  - type: RateLimits
+    url: rate-limits/charitysense-com-rate-limits.yml
+  - type: Plans
+    url: plans/charitysense-com-plans-pricing.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: AgenticAccess
+  url: agentic-access/charitysense-com-agentic-access.yml
+- type: DomainSecurity
+  url: security/charitysense-com-domain-security.yml
+- type: Authentication
+  url: authentication/charitysense-com-authentication.yml
 - type: Website
   url: https://charitysense.com/
+- type: DeveloperPortal
+  url: https://data.charitysense.com/developers
+- type: Documentation
+  url: https://data.charitysense.com/developers
+- type: APIReference
+  url: https://data.charitysense.com/docs
+- type: GettingStarted
+  url: https://data.charitysense.com/agents
+- type: Support
+  url: https://data.charitysense.com/contact
+- type: PrivacyPolicy
+  url: https://data.charitysense.com/privacy
+- type: Blog
+  url: https://charitysense.com/insights
+- type: AgentCard
+  url: a2a/charitysense-com-a2a.yml
+- type: WellKnown
+  url: well-known/charitysense-com-well-known.yml
+- type: APICatalog
+  url: https://data.charitysense.com/.well-known/api-catalog
+- type: OpenAIPluginManifest
+  url: https://data.charitysense.com/.well-known/ai-plugin.json
+- type: LLMsTxt
+  url: llms/charitysense-com-llms.txt
+- type: LLMsTxt
+  name: llms.txt (charitysense.com website)
+  url: llms/charitysense-com-website-llms.txt
+- type: AgentInstructions
+  name: INSTRUCTIONS_FOR_AGENTS.md (verbatim)
+  url: skills/charitysense-com-instructions-for-agents.md
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Conformance
+  url: conformance/charitysense-com-conformance.yml
+- type: ErrorCatalog
+  url: errors/charitysense-com-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/charitysense-com-lifecycle.yml
+- type: Conventions
+  url: conventions/charitysense-com-conventions.yml
+- type: DataModel
+  url: data-model/charitysense-com-data-model.yml
+- type: Overlay
+  url: overlays/charitysense-com-data-api-overlay.yaml
+- type: Plans
+  url: plans/charitysense-com-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/charitysense-com-rate-limits.yml
+x-enrichment:
+  date: '2026-09-19'
+  status: enriched
+  artifacts_added: 33
+  pass: local-v3

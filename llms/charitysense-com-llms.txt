@@ -1,0 +1,8 @@
+# CharitySense Data
+
+Comprehensive nonprofit research, live ratings, relationships, public-web evidence, and filing-backed details.
+
+- Search: /api/v2/search?Query=
+- Profile shell: /api/v2/charity/{EIN}/page
+- Lazy section: /api/v2/charity/{EIN}/sections/{SectionId}
+- API contract: /openapi.yaml

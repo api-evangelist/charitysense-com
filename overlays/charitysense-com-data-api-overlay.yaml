@@ -1,0 +1,107 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the CharitySense Data API
+  version: 1.0.0
+extends: ../openapi/charitysense-com-openapi.yml
+x-generated: '2026-09-19'
+x-method: derived
+x-source: >-
+  Derived from openapi/charitysense-com-openapi.yml plus the provider's own discovery documents (agent card,
+  api-catalog, INSTRUCTIONS_FOR_AGENTS.md) and live probes on 2026-09-19. Records what the contract leaves
+  implicit without mutating it; every value is traceable to a provider document or an observed response.
+actions:
+- target: $.info
+  description: Link the provider's machine-readable discovery surface from the contract.
+  update:
+    x-api-catalog: https://data.charitysense.com/.well-known/api-catalog
+    x-agent-card: https://data.charitysense.com/.well-known/agent-card.json
+    x-ai-plugin: https://data.charitysense.com/.well-known/ai-plugin.json
+    x-ai-profile: https://data.charitysense.com/ai-profile.json
+    x-llms-txt: https://data.charitysense.com/llms.txt
+    x-agent-instructions: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+    x-mcp-notice: https://data.charitysense.com/mcp.json
+    x-public-profile-url-template: https://data.charitysense.com/charity/{ein}
+    x-citation: 'CharitySense public charity profile, https://data.charitysense.com/charity/{ein} (include the filing year)'
+- target: $.info
+  description: >-
+    Record the daily allowances and the RateLimit headers observed live, since the contract declares no response
+    headers.
+  update:
+    x-rate-limit:
+      anonymous: {limit: 1000, window: 1 UTC day, scope: per-client}
+      paid_defaults: {data: 100000, advanced: 250, window: 1 UTC day, scope: per-key}
+      headers: [RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset]
+      exhaustion_status: 429
+      usage_endpoint: /api/v2/usage
+- target: $.info
+  description: Record the error envelope and the documented ErrorCode registry (see errors/).
+  update:
+    x-error-envelope:
+      field: detail
+      codes:
+      - {code: ApiKeyRequired, status: 401}
+      - {code: EntitlementRequired, status: 403}
+      - {code: ProfileNotFound, status: 404}
+      - {code: SectionNotAdvertised, status: 404}
+      - {code: AdvertisedSectionEmpty, status: 500}
+      retry: {never_unchanged: [400, 401, 404, 422], back_off: [429, 503]}
+- target: $.tags[?(@.name=='Profiles')]
+  description: Tag descriptions (the contract declares names only).
+  update:
+    description: Bounded charity page, advertised sections, filings, brand icon and grant-flow evidence for one EIN.
+- target: $.tags[?(@.name=='Discovery')]
+  update:
+    description: Identity and discovery search, top lists, cohort funders, related-organization discovery and bulk diligence summaries.
+- target: $.tags[?(@.name=='Dataset')]
+  update:
+    description: Liveness and corpus-wide statistics.
+- target: $.tags[?(@.name=='Assistant')]
+  update:
+    description: Paid assistant operations - charity question, agent feedback, capabilities and SSE chat. Every POST is consequential and requires user confirmation.
+- target: $.tags[?(@.name=='Usage')]
+  update:
+    description: The calling paid key's own daily allowance; not metered.
+- target: $.paths.*.get[?(@.security==null)]
+  description: Mark the anonymous public research reads and the allowance they share.
+  update:
+    x-access-tier: public
+    x-daily-allowance: 1000 per UTC day per client
+- target: $.paths.*.*[?(@.security!=null)]
+  description: Mark every operation that requires a paid key as an Advanced operation (getApiUsage is the unmetered exception).
+  update:
+    x-access-tier: advanced
+    x-anonymous-response: 403 EntitlementRequired
+- target: $.paths['/api/v2/usage'].get
+  update:
+    x-access-tier: authenticated
+    x-metered: false
+- target: $.paths.*.post
+  description: Provider policy for consequential operations, from INSTRUCTIONS_FOR_AGENTS.md.
+  update:
+    x-requires-user-confirmation: true
+    x-idempotent: false
+    x-reversible: false
+- target: $.paths['/api/v2/search'].get
+  update:
+    x-pagination: {style: page-number, param: Cursor, one_based: true, limit: Limit}
+- target: $.paths['/api/v2/charity/{ein}/sections/{SectionId}'].get
+  update:
+    x-pagination: {style: opaque-cursor, param: Cursor, next_field: NextCursor}
+    x-synthesized-sections: [WhatTheyDo, People, GrantReadiness, MoneyNetwork, RelatedOrganizations]
+- target: $.paths['/api/v2/charity/{ein}/filings'].get
+  update:
+    x-pagination: {style: opaque-cursor, param: Cursor, next_field: NextCursor}
+- target: $.paths['/api/v2/charity/{ein}/money-network'].get
+  update:
+    x-pagination: {style: opaque-cursor, param: Cursor, next_field: NextCursor}
+    x-supported-scope: Latest
+- target: $.paths['/api/v2/assistant/chat/stream'].post
+  update:
+    x-response-media-type: text/event-stream
+    x-stream-terminator: '[DONE]'
+- target: $.components.securitySchemes.BearerAuth
+  update:
+    description: Paid CharitySense API key sent as a bearer token. Issued after a request at https://data.charitysense.com/contact?interest=api-access.
+- target: $.components.securitySchemes.ApiKeyAuth
+  update:
+    description: The same paid key sent in the X-CharitySense-API-Key header; interchangeable with BearerAuth.

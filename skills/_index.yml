@@ -1,0 +1,32 @@
+generated: '2026-09-19'
+method: generated
+source: >-
+  Three packaged Agent Skills generated from CharitySense's OpenAPI 3.1.0 contract (openapi/charitysense-com-openapi.yml)
+  and the provider's own INSTRUCTIONS_FOR_AGENTS.md; every step is grounded in an operationId verified verbatim in the
+  spec, and the cross-cutting rules cite ../conventions/, ../errors/, ../rate-limits/ and ../authentication/. The
+  fourth file is the provider's own agent instruction document, saved verbatim (method: searched).
+skills:
+- file: charitysense-com-instructions-for-agents.md
+  name: CharitySense agent instructions (provider-published, verbatim)
+  method: searched
+  source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+  api: openapi/charitysense-com-openapi.yml
+  operations: [searchOrganizations, getCharityPage, getCharitySection, getCharityFilings, getApiUsage, getCharityMoneyNetwork, discoverRelatedOrganizations, getStats, submitAgentFeedback, streamAssistantChat]
+- file: charitysense-com-research-a-charity.md
+  name: Research a U.S. charity from a name or EIN
+  method: generated
+  api: openapi/charitysense-com-openapi.yml
+  operations: [searchOrganizations, getCharityPage, getCharitySection, getCharityFilings]
+  tier: public (no key)
+- file: charitysense-com-trace-grant-flows.md
+  name: Trace grant flows and funders for a charity or cohort
+  method: generated
+  api: openapi/charitysense-com-openapi.yml
+  operations: [getApiUsage, getCharityPage, getCharityMoneyNetwork, getCharityFunders, getCharityGrantees, getFundersForCohort, getDiligenceSummary]
+  tier: advanced (paid key)
+- file: charitysense-com-report-a-data-gap.md
+  name: Report a data gap or result problem back to CharitySense
+  method: generated
+  api: openapi/charitysense-com-openapi.yml
+  operations: [getApiUsage, submitAgentFeedback]
+  tier: advanced (paid key, consequential POST)

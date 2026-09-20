@@ -1,0 +1,20 @@
+generated: '2026-09-19'
+method: searched
+source: registry searches 2026-09-19
+package_count: 0
+packages: []
+searched:
+- {registry: npm, query: 'https://registry.npmjs.org/-/v1/search?text=charitysense&size=10', result: 0 packages}
+- {registry: pypi, query: 'https://pypi.org/pypi/charitysense/json', status: 404}
+- {registry: pypi, query: 'https://pypi.org/pypi/charitysense-sdk/json', status: 404}
+- {registry: pypi, query: 'https://pypi.org/pypi/charity-sense/json', status: 404}
+- {registry: github, query: 'https://api.github.com/search/repositories?q=charitysense', result: 0 repositories}
+- {registry: github-org, query: 'https://api.github.com/orgs/charitysense', status: 404}
+- {registry: github-org, query: 'https://api.github.com/orgs/oscilabs', status: 200, result: 'an org with 0 public repositories, no name, blog, email or description, created 2024-04-23 - cannot be tied to this company, so it is NOT linked as a GitHubOrganization'}
+note: >-
+  CharitySense publishes no client library, CLI or SDK in any registry searched, and none of its discovery
+  documents (agent card, ai-plugin.json, ai-profile.json, llms.txt, INSTRUCTIONS_FOR_AGENTS.md) mention one. The
+  documented way in is the OpenAPI contract directly ("If an integration can import OpenAPI, prefer the
+  operationId-based contract"), plus a hosted Custom GPT
+  (https://chatgpt.com/g/g-6a197ea908a88191816369ed81f721b0-charitysense-donor-research-assistant) named in the
+  legacy agent manifest. No Packages or SDKs pointer is emitted.

@@ -1,0 +1,21 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/charitysense-com-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+schemes:
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  sources:
+  - openapi/charitysense-com-openapi.yml
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: X-CharitySense-API-Key
+  sources:
+  - openapi/charitysense-com-openapi.yml

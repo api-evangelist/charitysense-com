@@ -1,0 +1,159 @@
+generated: '2026-09-19'
+method: searched
+source: >-
+  Live probes of data.charitysense.com discovery documents and API responses on 2026-09-19, cross-checked against
+  openapi/_original/charitysense-com-openapi-original.yaml and the provider's INSTRUCTIONS_FOR_AGENTS.md.
+compliance_program_published: false
+note: >-
+  CharitySense publishes no certifications (no SOC 2 / ISO 27001 / trust center page; /security, /trust and
+  /.well-known/security.txt all 404 - see security/), so no Compliance pointer is emitted. What it does conform to
+  is the machine-discovery layer: RFC 9727, an A2A-shaped card, an ai-plugin manifest, llms.txt and IETF-style
+  RateLimit headers. The domain-standard block records what the CONTRACT itself declares for the U.S. nonprofit
+  sector (IRS form-type taxonomy and EIN identifier), not a prose claim.
+standards:
+- id: openapi-3.1
+  name: OpenAPI 3.1
+  conforms: true
+  evidence: >-
+    openapi/_original/charitysense-com-openapi-original.yaml declares "openapi: 3.1.0" with 21 paths, 21 operations,
+    40 component schemas, unique operationIds, summaries on every operation, two securitySchemes (BearerAuth http
+    bearer, ApiKeyAuth apiKey header X-CharitySense-API-Key) applied per operation. Served at
+    https://data.charitysense.com/openapi.yaml (200 application/yaml) and /openapi.json (200 application/json);
+    both hold the same paths. Gaps: no examples, no response headers, no tag descriptions beyond names.
+- id: rfc9727
+  name: RFC 9727 API Catalog (/.well-known/api-catalog)
+  conforms: true
+  evidence: >-
+    https://data.charitysense.com/.well-known/api-catalog returned 200 with content-type
+    application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727" and a linkset anchored at
+    https://data.charitysense.com carrying service-desc, service-doc, service-meta and status relations. Every
+    response from the host also carries an RFC 8288 Link header with rel="api-catalog" pointing at it. Saved as
+    well-known/charitysense-com-data-api-catalog.json.
+- id: a2a-agent-card
+  name: A2A Agent Card (protocolVersion 0.3.0, graded against 1.0.0)
+  conforms: true
+  evidence: >-
+    https://data.charitysense.com/.well-known/agent-card.json (200 application/json) passes the three hard checks -
+    capabilities object, protocolVersion present, skills array of 9. See a2a/charitysense-com-a2a.yml.
+  caveat: >-
+    Structurally conformant only. preferredTransport and every declared interface are "OPENAPI", which A2A does not
+    define, and the card's own notice says no A2A JSON-RPC task endpoint exists. It is an AgentCard describing a
+    REST API, not a callable A2A agent (a2a_callable: false in the manifest).
+- id: openai-plugin-manifest
+  name: ai-plugin.json (OpenAI plugin manifest, schema_version v1)
+  conforms: true
+  evidence: >-
+    https://data.charitysense.com/.well-known/ai-plugin.json returned 200 with schema_version v1, name_for_model
+    "charitysense", auth.type none and api.type openapi -> /openapi.yaml. Saved as
+    well-known/charitysense-com-data-ai-plugin.json.
+- id: llms-txt
+  name: llms.txt
+  conforms: true
+  evidence: >-
+    https://data.charitysense.com/llms.txt (200, text/plain, H1 + summary + link list) and
+    https://charitysense.com/llms.txt (200, 6KB, H1 + blockquote + sectioned link lists). Both saved in llms/.
+    /llms-full.txt is also served (text/markdown, 5.4KB).
+- id: ietf-ratelimit-headers
+  name: RateLimit header fields (draft-ietf-httpapi-ratelimit-headers)
+  conforms: true
+  evidence: >-
+    Observed live on GET https://data.charitysense.com/api/v2/search?Query=red+cross&Limit=2 (200): ratelimit-limit:
+    1000, ratelimit-remaining: 999, ratelimit-reset: 1789948800 (next UTC midnight as epoch seconds). Header names
+    follow the IETF draft's singular RateLimit-* form rather than X-RateLimit-*.
+  caveat: The headers are not declared in the OpenAPI (components.headers is absent) and reset is an absolute epoch, not the draft's delta-seconds.
+- id: cursor-pagination
+  name: Cursor pagination
+  conforms: true
+  evidence: >-
+    components.parameters.OpaqueCursor ("Opaque continuation value returned by NextCursor") is used by
+    getCharitySection and getCharityFilings; MoneyNetwork, AwardList, SubawardList, CharityFilings, CharitySection
+    and SearchResults schemas all carry NextCursor. Search alone uses a one-based integer Cursor (page number).
+- id: rfc9457
+  name: RFC 9457 Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    Every 4xx/5xx references components.responses.ErrorResponse -> schema Error, whose single member is
+    `detail` (string | {ErrorCode, Message, ...} | FastAPI validation array). No application/problem+json, no
+    type/title/status/instance. Live 401/403/404/422 bodies confirmed the detail envelope. See
+    errors/charitysense-com-problem-types.yml.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence: >-
+    No oauth2 securityScheme; auth is a static bearer token or X-CharitySense-API-Key issued after a contact-form
+    request. /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource 404 on every host.
+- id: oidc
+  name: OpenID Connect Discovery
+  conforms: false
+  evidence: /.well-known/openid-configuration 404 on all five hosts.
+- id: rfc9116
+  name: RFC 9116 security.txt
+  conforms: false
+  evidence: /.well-known/security.txt and /security.txt 404 on all five hosts.
+- id: apis-json
+  name: APIs.json
+  conforms: false
+  evidence: /apis.json, /apis.yml and /.well-known/apis.json 404 on all five hosts.
+- id: mcp
+  name: Model Context Protocol
+  conforms: false
+  evidence: >-
+    https://data.charitysense.com/mcp.json returns {"mcp_server": false, ...}; /mcp and /.well-known/mcp.json 404.
+    The provider states explicitly that no MCP transport is exposed.
+- id: idempotency-key
+  name: Idempotency-Key (draft-ietf-httpapi-idempotency-key-header)
+  conforms: false
+  evidence: >-
+    None of the three POST operations (submitCharityQuestion, submitAgentFeedback, streamAssistantChat) declare an
+    idempotency header or key field, and the docs describe none. See conventions/.
+- id: sse
+  name: Server-Sent Events (text/event-stream)
+  conforms: true
+  evidence: >-
+    POST /api/v2/assistant/chat/stream (streamAssistantChat) returns text/event-stream and, per
+    INSTRUCTIONS_FOR_AGENTS.md, terminates with a `[DONE]` data frame.
+domain_standards:
+  sector: Nonprofit / philanthropy data (United States)
+  note: >-
+    Recorded from the contract, per the 0.12.0 domain_standard_conformance rule. The U.S. nonprofit sector has no
+    formal API-interchange standard; what exists is a shared regulatory vocabulary (IRS Form 990 family, EIN) and
+    a shared classification (NTEE). The contract declares the first two by name; NTEE is observed in values and
+    in the provider's own sitemap naming but is not named inside the spec.
+  entries:
+  - id: irs-form-990
+    name: IRS Form 990 form-type taxonomy (990, 990-EZ, 990-N, 990-PF, 990-T)
+    conforms: true
+    declared_in_contract: true
+    evidence: >-
+      openapi/_original/charitysense-com-openapi-original.yaml components.parameters.Form.schema.enum =
+      [990, 990EZ, 990N, 990PF, 990T]; CharityPage.Context.SelectedForm carries the same enum; searchOrganizations
+      parameter PrimaryForm repeats it; info.description and INSTRUCTIONS_FOR_AGENTS.md call these "first-class
+      form contexts". Live CharityPage.Hero.Form/Year and SearchHit.PrimaryForm/FormTypes values ("990EZ",
+      ["990EZ","990N"]) confirmed the vocabulary in use.
+  - id: ein
+    name: IRS Employer Identification Number as the organization identifier
+    conforms: true
+    declared_in_contract: true
+    evidence: >-
+      components.parameters.Ein: path parameter "ein", integer 10000000-999999999, "Nine-digit Employer
+      Identification Number"; EIN is the key on SearchHit, Funder, GranteeList, FunderList, AwardList, SubawardList,
+      CharityQuestionRequest and AgentFeedbackRequest, and the public profile URL template is /charity/{ein}. The
+      JSON-LD on those pages emits the same value as schema.org taxID.
+  - id: ntee
+    name: NTEE (National Taxonomy of Exempt Entities) cause classification
+    conforms: true
+    declared_in_contract: false
+    evidence: >-
+      SearchHit.CauseCode returned NTEE-format codes live (e.g. "T30" for "Public Foundations" on EIN 581771391),
+      SearchHit.Cause descriptions match NTEE major-group labels, and the provider's sitemap index at
+      https://data.charitysense.com/sitemap.xml is partitioned into sitemap-ntee-a ... sitemap-ntee-z files. The
+      OpenAPI documents CauseCode only as a string ("The IRS classification labels this cause holds") and never
+      names NTEE, so this is an observed, not declared, conformance.
+  - id: schema-org-ngo
+    name: schema.org NGO / Organization JSON-LD on public profile pages
+    conforms: true
+    declared_in_contract: false
+    evidence: >-
+      https://data.charitysense.com/charity/530196605 (200) embeds application/ld+json with @type ["NGO",
+      "Organization"], legalName, taxID, sameAs, keywords and additionalProperty entries. This is the HTML surface
+      the agent card's cite_public_charity_profile skill points at, not the API contract.

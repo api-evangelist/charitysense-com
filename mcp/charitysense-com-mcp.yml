@@ -1,0 +1,158 @@
+generated: '2026-09-19'
+method: derived
+status: candidate
+source: openapi/charitysense-com-openapi.yml
+docs: https://data.charitysense.com/agents
+summary: >-
+  CharitySense ships NO Model Context Protocol server, and says so in machine-readable form: GET
+  https://data.charitysense.com/mcp.json returns {"mcp_server": false, "notice": "No Model Context Protocol
+  transport is exposed at this origin. Use the OpenAPI contract for callable HTTP tools."} (saved verbatim as
+  mcp/charitysense-com-mcp-compatibility-notice.json), the RFC 9727 api-catalog lists that document under
+  service-meta as "MCP compatibility notice", and INSTRUCTIONS_FOR_AGENTS.md repeats "no MCP transport is
+  exposed". /mcp and /.well-known/mcp.json both 404. The tool list below is therefore a CANDIDATE derived one
+  tool per operationId from the provider's own 21-operation OpenAPI 3.1.0 contract, for anyone who wants to wrap
+  the REST API; nothing here is a claim that the provider serves it.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+  note: >-
+    mode none because nobody ships a server. If one were built from this candidate list it would need the
+    contract's two schemes for Advanced tools: Authorization: Bearer <token> or X-CharitySense-API-Key; the seven
+    public research tools need no credential but share a 1,000 request per UTC day allowance per client.
+probes:
+- url: https://data.charitysense.com/mcp.json
+  http_status: 200
+  content_type: application/json
+  result: '"mcp_server": false compatibility notice'
+- url: https://data.charitysense.com/mcp
+  http_status: 404
+- url: https://data.charitysense.com/.well-known/mcp.json
+  http_status: 404
+- url: https://api.charitysense.com/.well-known/oauth-protected-resource
+  http_status: 404
+server:
+  name: charitysense-data
+  transport: http
+  url: null
+tool_policy:
+  from_provider: >-
+    "Research reads are metered daily. Paid Advanced operations are consequential; obtain user confirmation
+    before every POST." (agent card, api.operation_policy). Public research reads: getHealth, searchOrganizations,
+    getCharityPage, getCharitySection, getCharityFilings. Everything else is an Advanced operation requiring a
+    paid key; the three POST tools require explicit user confirmation before each call.
+tools:
+- name: get_health
+  description: Liveness and published-overlay integrity probe (Status, SchemaVersion, CompiledAt, Documents).
+  source_operation: openapi/charitysense-com-openapi.yml#getHealth
+  tier: public
+  read_only: true
+- name: search_organizations
+  description: >-
+    Search canonical organization identity or discovery indexes. Required Query; Mode Identity|Discovery; one-based
+    Cursor; Limit 1-50; filters State, Cause, CauseLabel, MinRevenue, MaxRevenue, PrimaryForm, EntityType,
+    EvidenceTier; Sort Relevance|Revenue|Assets|Recent; Facets.
+  source_operation: openapi/charitysense-com-openapi.yml#searchOrganizations
+  tier: public
+  read_only: true
+- name: get_charity_page
+  description: Bounded first-paint profile for an EIN - selected form context, hero, live verdict and the manifest of available sections.
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityPage
+  tier: public
+  read_only: true
+- name: get_charity_section
+  description: One section advertised by the page (Form, Year, opaque Cursor, Limit 1-200, EvidenceRef). Returns Data plus EvidenceRefs.
+  source_operation: openapi/charitysense-com-openapi.yml#getCharitySection
+  tier: public
+  read_only: true
+- name: get_charity_filings
+  description: Filing metadata for one form context with opaque cursor pagination (Limit 1-100).
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityFilings
+  tier: public
+  read_only: true
+- name: get_api_usage
+  description: The calling paid key's current UTC-day Data and Advanced allowance (Limit, Used, Remaining, ResetAt). Not metered.
+  source_operation: openapi/charitysense-com-openapi.yml#getApiUsage
+  tier: authenticated
+  read_only: true
+- name: get_stats
+  description: Dataset-wide counts, form counts, freshness and sector aggregates.
+  source_operation: openapi/charitysense-com-openapi.yml#getStats
+  tier: advanced
+  read_only: true
+- name: get_top_lists
+  description: Six current cause-based top lists.
+  source_operation: openapi/charitysense-com-openapi.yml#getTopLists
+  tier: advanced
+  read_only: true
+- name: get_charity_brand_icon
+  description: Brand icon for an EIN.
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityBrandIcon
+  tier: advanced
+  read_only: true
+- name: get_charity_money_network
+  description: Latest directed counterparty evidence (Scope=Latest only; Direction Incoming|Outgoing; opaque Cursor; Limit 1-200).
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityMoneyNetwork
+  tier: advanced
+  read_only: true
+- name: get_charity_awards
+  description: Federal awards for an EIN, cursor paged.
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityAwards
+  tier: advanced
+  read_only: true
+- name: get_charity_subawards
+  description: Federal subawards for an EIN, cursor paged.
+  source_operation: openapi/charitysense-com-openapi.yml#getCharitySubawards
+  tier: advanced
+  read_only: true
+- name: get_charity_grantees
+  description: Grantees of an EIN (Limit, MinYear, MinAmount, AllCategories).
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityGrantees
+  tier: advanced
+  read_only: true
+- name: get_charity_funders
+  description: Funders of an EIN (Limit, MinYear, AllCategories).
+  source_operation: openapi/charitysense-com-openapi.yml#getCharityFunders
+  tier: advanced
+  read_only: true
+- name: get_funders_for_cohort
+  description: Funders shared across a cohort of EINs.
+  source_operation: openapi/charitysense-com-openapi.yml#getFundersForCohort
+  tier: advanced
+  read_only: true
+- name: discover_related_organizations
+  description: Organizations related by cause, mission, region or an explicit Intent.
+  source_operation: openapi/charitysense-com-openapi.yml#discoverRelatedOrganizations
+  tier: advanced
+  read_only: true
+- name: get_diligence_summary
+  description: Bulk grant-readiness, financial and live-rating summary for up to 25 comma-separated EINs.
+  source_operation: openapi/charitysense-com-openapi.yml#getDiligenceSummary
+  tier: advanced
+  read_only: true
+- name: get_assistant_capabilities
+  description: What the assistant can do for the calling key.
+  source_operation: openapi/charitysense-com-openapi.yml#getAssistantCapabilities
+  tier: advanced
+  read_only: true
+- name: submit_charity_question
+  description: Submit a question about an EIN (EIN, Question, Email). Consequential - confirm with the user first.
+  source_operation: openapi/charitysense-com-openapi.yml#submitCharityQuestion
+  tier: advanced
+  read_only: false
+  requires_user_confirmation: true
+- name: submit_agent_feedback
+  description: Send agent identity, purpose, task, result quality and desired-data feedback (Message required). Consequential - confirm with the user first.
+  source_operation: openapi/charitysense-com-openapi.yml#submitAgentFeedback
+  tier: advanced
+  read_only: false
+  requires_user_confirmation: true
+- name: stream_assistant_chat
+  description: Assistant chat over text/event-stream ending with a [DONE] frame (Message, History up to 20 turns, Context; X-CharitySense-Session header). Consequential - confirm with the user first.
+  source_operation: openapi/charitysense-com-openapi.yml#streamAssistantChat
+  tier: advanced
+  read_only: false
+  requires_user_confirmation: true

@@ -1,0 +1,149 @@
+generated: '2026-09-19'
+method: searched
+source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+derived_from: openapi/_original/charitysense-com-openapi-original.yaml
+docs:
+- https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+- https://data.charitysense.com/llms-full.txt
+- https://data.charitysense.com/agents
+base_url: https://data.charitysense.com
+path_prefix: /api/v2
+media_type: application/json
+streaming_media_type: text/event-stream (streamAssistantChat only; terminates with a "[DONE]" data frame)
+auth:
+  style: >-
+    Two-tier. Public research reads (getHealth, searchOrganizations, getCharityPage, getCharitySection,
+    getCharityFilings) need no credential. Every other operation - the "derived reads" and all three POSTs - is an
+    Advanced operation requiring a paid key sent as either `Authorization: Bearer <token>` or
+    `X-CharitySense-API-Key: <token>`; getApiUsage needs a key but is not metered.
+  anonymous_behaviour: >-
+    Observed 2026-09-19 - anonymous GET /api/v2/stats and anonymous POST /api/v2/agent-feedback both return 403
+    {"detail":{"ErrorCode":"EntitlementRequired","UpgradeURL":"/contact?interest=api-access"}}; anonymous GET
+    /api/v2/usage returns 401 ApiKeyRequired.
+  key_issuance: Request form at https://data.charitysense.com/contact?interest=api-access - no self-serve signup.
+  detail: authentication/charitysense-com-authentication.yml
+consent:
+  policy: >-
+    Provider-stated: "AI POST operations are consequential. Explain the exact action and obtain user confirmation
+    immediately before calling one. Never infer consent from an earlier research request." Applies to
+    submitCharityQuestion, submitAgentFeedback and streamAssistantChat.
+  source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md#access-consent-and-side-effects
+idempotency:
+  supported: false
+  coverage: none
+  scope: []
+  header: null
+  retention: null
+  description: >-
+    No idempotency mechanism exists. The three mutating operations (submitCharityQuestion POST
+    /api/v2/charity-question, submitAgentFeedback POST /api/v2/agent-feedback, streamAssistantChat POST
+    /api/v2/assistant/chat/stream) declare no Idempotency-Key header and no client-supplied key field;
+    AgentFeedbackRequest.RecoverySessionID and the X-CharitySense-Session header on chat are session correlators,
+    not replay guards. The docs describe none. A retried POST submits a second question / second feedback record.
+  gaps:
+  - No Idempotency-Key header on any operation.
+  - No documented de-duplication of repeated feedback or question submissions.
+  - No idempotency guidance in INSTRUCTIONS_FOR_AGENTS.md; the consent rule ("obtain user confirmation before every POST") is the only guard against accidental repeats.
+dry_run_mode:
+  status: none
+  note: >-
+    No validate-only, preview or sandbox mode for the POSTs. The read side needs no rehearsal: 18 of 21 operations
+    are GETs, five of them anonymous, so an agent can exercise the research path without credentials.
+reversibility:
+  status: none
+  method: derived
+  derived_from: openapi/_original/charitysense-com-openapi-original.yaml
+  docs:
+  - https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+  summary: >-
+    The write surface is three submissions - a charity question, agent feedback, and an assistant chat turn - and
+    none has a reversal operation: there is no DELETE anywhere in the contract, no cancel/withdraw/undo operation,
+    and the docs state no retraction window. The writes are non-financial and non-destructive (they create a
+    record on the provider's side; they change no charity data), which bounds the blast radius but does not make
+    them reversible. Not `na` because a write surface exists; `none` because nothing takes a write back.
+  reversals: []
+  write_operations:
+  - operation: submitCharityQuestion
+    path: POST /api/v2/charity-question
+    effect: Creates a question record tied to an EIN and an email address.
+    reversal: none
+  - operation: submitAgentFeedback
+    path: POST /api/v2/agent-feedback
+    effect: Creates a feedback record (Message, FeedbackType, EIN, Email, RecoverySessionID, Metadata).
+    reversal: none
+  - operation: streamAssistantChat
+    path: POST /api/v2/assistant/chat/stream
+    effect: Runs an assistant turn and consumes Advanced allowance; History is client-held, so no server state to reverse is documented.
+    reversal: none
+pagination:
+  styles:
+  - style: one-based page number
+    operations: [searchOrganizations]
+    request: {param: Cursor, type: integer, minimum: 1, default: 1, limit_param: Limit, limit_range: 1-50, limit_default: 10}
+    response: {fields: [Page, Found, NextCursor]}
+    note: 'The provider calls it Cursor but documents it as "One-based Typesense result page".'
+  - style: opaque cursor
+    operations: [getCharitySection, getCharityFilings, getCharityMoneyNetwork, getCharityAwards, getCharitySubawards]
+    request: {param: Cursor, type: string, limit_param: Limit, limit_range: '1-200 (sections, money network, awards); 1-100 (filings)', limit_default: 50}
+    response: {fields: [NextCursor]}
+    rule: >-
+      "Follow NextCursor until it is absent when the task needs complete results. Treat every returned cursor as
+      opaque and use it only with the route that produced it."
+  - style: bounded list, no paging
+    operations: [getCharityGrantees, getCharityFunders, getFundersForCohort, discoverRelatedOrganizations, getDiligenceSummary, getTopLists]
+    request: {param: Limit}
+    note: getDiligenceSummary takes up to 25 comma-separated EINs; getFundersForCohort takes an EINs list.
+field_naming:
+  style: UpperCamelCase for every CharitySense-owned field (EIN, NextCursor, EvidenceRefs, SelectedForm)
+  sparse_documents: >-
+    "Documents are sparse: if a fact, block, or section is absent, do not interpret it as false, zero, or an empty
+    result." Missing facts and unavailable sections are omitted, not nulled.
+  envelope: Responses return the documented resource directly - no data/meta wrapper.
+resource_selection:
+  form_context: >-
+    Form (990 | 990EZ | 990N | 990PF | 990T) and Year select a filing context on page, section, filings and
+    discovery; defaults are the profile's primary form and its latest year. CharityPage.Context.AvailableForms is
+    the authoritative list.
+  section_manifest: >-
+    CharityPage.Sections is "the only valid section inventory"; fetch a section only when its exact Id is
+    advertised - except the five synthesized sections (WhatTheyDo, People, GrantReadiness, MoneyNetwork,
+    RelatedOrganizations), which may be requested directly and answer 404 SectionNotAdvertised when empty.
+  evidence_refs: >-
+    EvidenceRef values (Collection, Form, TaxYear, Ref, SourcePath, SourceDocument, Citation) come back on page and
+    section responses and may be passed to getCharitySection as EvidenceRef only when an earlier response supplied
+    that exact value - "do not construct it yourself".
+field_expansion: none - no expand/include/fields parameter; the section manifest plus lazy section fetches play that role.
+metadata: none - no client metadata field on any resource.
+request_tracing:
+  request_id_header: none declared or observed
+  session_header: X-CharitySense-Session (optional header on streamAssistantChat)
+  agent_identity_headers:
+    optional: true
+    headers: [X-Agent-Name, X-Agent-Version, X-Agent-Platform, X-Agent-Stack, X-Agent-Owner, X-Agent-Contact, X-Agent-Purpose, X-Agent-Community, X-Agent-Session]
+    purpose: >-
+      Voluntary self-identification so CharitySense "can improve result quality and API coverage" (ai-profile.json
+      agent_identity). Not authentication.
+versioning:
+  scheme: uri-path (/api/v2); see lifecycle/charitysense-com-lifecycle.yml
+error_envelope:
+  field: detail
+  shapes: [string, '{ErrorCode, Message, ...}', 'FastAPI validation array [{type, loc, msg, input}]']
+  media_type: application/json
+  rfc9457: false
+  retry: {never_unchanged: [400, 401, 404, 422], back_off: [429, 503], report: [500 AdvertisedSectionEmpty]}
+  detail: errors/charitysense-com-problem-types.yml
+rate_limit_signaling:
+  headers_observed: [RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset]
+  exhaustion_status: 429
+  detail: rate-limits/charitysense-com-rate-limits.yml
+citation_convention:
+  rule: 'Cite "CharitySense public charity profile, https://data.charitysense.com/charity/{ein}" and include the filing year when using financial evidence.'
+  source: agent card `citation` block and ai-profile.json
+cross_links:
+  authentication: authentication/charitysense-com-authentication.yml
+  errors: errors/charitysense-com-problem-types.yml
+  lifecycle: lifecycle/charitysense-com-lifecycle.yml
+  rate_limits: rate-limits/charitysense-com-rate-limits.yml
+  plans: plans/charitysense-com-plans-pricing.yml
+  data_model: data-model/charitysense-com-data-model.yml
+  agentic_access: agentic-access/charitysense-com-agentic-access.yml

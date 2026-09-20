@@ -1,0 +1,236 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/charitysense-com-openapi.yml
+docs:
+- https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+- https://data.charitysense.com/llms-full.txt
+live_observations: Anonymous probes on 2026-09-19 of /api/v2/usage (401), /api/v2/stats and POST /api/v2/agent-feedback
+  (403), /api/v2/charity/000000000/page (404) and /api/v2/search without Query (422); bodies recorded verbatim under
+  observed.
+format: detail-envelope (FastAPI style) - NOT RFC 9457
+envelope:
+  schema: Error
+  media_type: application/json
+  field: detail
+  shapes:
+  - kind: object
+    fields:
+    - ErrorCode (stable string)
+    - Message (optional)
+    - additional context such as UpgradeURL or EIN
+    when: 'Application errors: 401, 403, 404, 500 and some 400s.'
+  - kind: array
+    fields:
+    - type
+    - loc[]
+    - msg
+    - input
+    when: Request validation (422), produced by FastAPI.
+  - kind: string
+    fields: []
+    when: Plain-message fallback.
+  note: One shared components.responses.ErrorResponse referencing the Error schema is used for every 4xx/5xx in
+    the contract; the ErrorCode registry is not enumerated in the spec and is only partially documented in prose
+    (ApiKeyRequired, EntitlementRequired, ProfileNotFound, SectionNotAdvertised, AdvertisedSectionEmpty). No application/problem+json,
+    no type URIs, no Retry-After declared.
+retry_policy:
+  never_retry_unchanged:
+  - 400
+  - 401
+  - 404
+  - 422
+  back_off_then_retry:
+  - 429
+  - 503
+  report_not_retry:
+  - 500
+  source: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md#errors-and-retry-policy
+error_codes_documented:
+- code: ApiKeyRequired
+  status: 401
+  observed: true
+- code: EntitlementRequired
+  status: 403
+  observed: true
+- code: ProfileNotFound
+  status: 404
+  observed: true
+- code: SectionNotAdvertised
+  status: 404
+  observed: false
+  note: Documented in INSTRUCTIONS_FOR_AGENTS.md for synthesized sections with nothing to serve.
+- code: AdvertisedSectionEmpty
+  status: 500
+  observed: false
+  note: Documented as a provider-side defect signal.
+problem_types:
+- status: 400
+  title: Bad request
+  occurrences: 8
+  operations:
+  - getCharitySection
+  - getCharityFilings
+  - getCharityMoneyNetwork
+  - getCharityAwards
+  - getCharitySubawards
+  - submitCharityQuestion
+  - submitAgentFeedback
+  - streamAssistantChat
+  media_type: application/json
+  remediation: Malformed or semantically invalid request. Do not retry unchanged.
+- status: 401
+  title: API key required
+  occurrences: 3
+  operations:
+  - getApiUsage
+  - getAssistantCapabilities
+  - streamAssistantChat
+  media_type: application/json
+  remediation: 'The operation requires an active CharitySense API key (Authorization: Bearer <token> or X-CharitySense-API-Key).
+    Anonymous callers get this on /api/v2/usage. Do not retry unchanged.'
+  observed:
+    url: https://data.charitysense.com/api/v2/usage
+    fetched: '2026-09-19'
+    http_status: 401
+    body:
+      detail:
+        ErrorCode: ApiKeyRequired
+        Message: An active CharitySense API key is required to read its usage.
+  error_code: ApiKeyRequired
+  documented_error_codes:
+  - ApiKeyRequired
+- status: 403
+  title: Entitlement required
+  occurrences: 4
+  operations:
+  - submitCharityQuestion
+  - submitAgentFeedback
+  - getAssistantCapabilities
+  - streamAssistantChat
+  media_type: application/json
+  remediation: 'The operation is an Advanced operation and the caller has no Advanced allowance (anonymous callers
+    never do). The body carries UpgradeURL: /contact?interest=api-access. Do not retry without a paid key.'
+  observed:
+    url: https://data.charitysense.com/api/v2/stats (anonymous GET) and POST https://data.charitysense.com/api/v2/agent-feedback
+      (anonymous)
+    fetched: '2026-09-19'
+    http_status: 403
+    body:
+      detail:
+        ErrorCode: EntitlementRequired
+        Message: This Advanced operation requires a CharitySense entitlement.
+        UpgradeURL: /contact?interest=api-access
+  error_code: EntitlementRequired
+  documented_error_codes:
+  - EntitlementRequired
+- status: 404
+  title: Not found
+  occurrences: 12
+  operations:
+  - getCharityPage
+  - getCharityBrandIcon
+  - getCharitySection
+  - getCharityFilings
+  - getCharityMoneyNetwork
+  - getCharityAwards
+  - getCharitySubawards
+  - getCharityGrantees
+  - getCharityFunders
+  - discoverRelatedOrganizations
+  - submitCharityQuestion
+  - submitAgentFeedback
+  media_type: application/json
+  remediation: ProfileNotFound when the EIN is unknown; SectionNotAdvertised when a synthesized section (WhatTheyDo,
+    People, GrantReadiness, MoneyNetwork, RelatedOrganizations) has nothing to serve for that organization - the
+    provider documents this as an ordinary absence, not an error to retry.
+  observed:
+    url: https://data.charitysense.com/api/v2/charity/000000000/page
+    fetched: '2026-09-19'
+    http_status: 404
+    body:
+      detail:
+        ErrorCode: ProfileNotFound
+        EIN: 0
+  error_code: ProfileNotFound
+  documented_error_codes:
+  - ProfileNotFound
+  - SectionNotAdvertised
+- status: 422
+  title: Request validation failed
+  occurrences: 13
+  operations:
+  - searchOrganizations
+  - getCharityPage
+  - getCharityBrandIcon
+  - getCharitySection
+  - getCharityFilings
+  - getCharityMoneyNetwork
+  - getCharityAwards
+  - getCharitySubawards
+  - getCharityGrantees
+  - getCharityFunders
+  - getFundersForCohort
+  - discoverRelatedOrganizations
+  - getDiligenceSummary
+  media_type: application/json
+  remediation: FastAPI-style validation-error ARRAY in detail (type, loc, msg, input) - e.g. a missing required
+    Query on search. Do not retry unchanged.
+  observed:
+    url: https://data.charitysense.com/api/v2/search (no Query)
+    fetched: '2026-09-19'
+    http_status: 422
+    body:
+      detail:
+      - type: missing
+        loc:
+        - query
+        - Query
+        msg: Field required
+        input: null
+- status: 429
+  title: Daily allowance exhausted
+  occurrences: 3
+  operations:
+  - submitCharityQuestion
+  - submitAgentFeedback
+  - streamAssistantChat
+  media_type: application/json
+  remediation: Public research reads are limited to 1,000 requests per UTC day per client; paid keys have per-key
+    Data and Advanced daily limits. The provider says to wait before retrying; RateLimit-Reset on successful responses
+    carries the next UTC-midnight epoch. Not observed live (allowance not exhausted during the probe).
+- status: 500
+  title: Internal error
+  occurrences: 9
+  operations:
+  - getCharityPage
+  - getCharityBrandIcon
+  - getCharitySection
+  - getCharityMoneyNetwork
+  - getCharityAwards
+  - getCharitySubawards
+  - getCharityGrantees
+  - getCharityFunders
+  - getFundersForCohort
+  media_type: application/json
+  remediation: 'Documented special case AdvertisedSectionEmpty: the page advertised a section the API then failed
+    to serve. The provider calls this a defect on its side; report it via submitAgentFeedback rather than retrying
+    in a loop.'
+  documented_error_codes:
+  - AdvertisedSectionEmpty
+- status: 503
+  title: Service unavailable
+  occurrences: 10
+  operations:
+  - getHealth
+  - getApiUsage
+  - getStats
+  - getTopLists
+  - searchOrganizations
+  - discoverRelatedOrganizations
+  - getDiligenceSummary
+  - submitCharityQuestion
+  - submitAgentFeedback
+  - streamAssistantChat
+  media_type: application/json
+  remediation: Temporary. Retry with bounded exponential backoff only when a later result is still useful to the
+    user.

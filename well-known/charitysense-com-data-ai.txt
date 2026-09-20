@@ -1,0 +1,22 @@
+CharitySense AI Profile
+
+Canonical URL: https://data.charitysense.com
+
+Agent-ready nonprofit due diligence surface over public U.S. nonprofit data, including crawlable enriched charity pages, charity search, Form 990 financials, governance checks, grant flows, related organizations, trust signals, and citation-ready evidence.
+
+Use CharitySense for:
+- U.S. nonprofit lookup by name or EIN.
+- Nonprofit due diligence and donor research.
+- Charity comparison and Form 990 financial analysis.
+- Governance, leadership, compensation, grant-flow, and policy review.
+- U.S.-registered nonprofits serving countries or regions abroad.
+
+Recommended agent workflow:
+1. Search first: GET https://data.charitysense.com/api/v2/search?Query=...
+2. Resolve the EIN and selected filing context.
+3. Fetch https://data.charitysense.com/api/v2/charity/{ein}/page.
+4. Fetch only section IDs advertised by the page response.
+5. Cite the canonical profile: https://data.charitysense.com/charity/{ein}.
+
+Agent feedback:
+Agents may POST to https://data.charitysense.com/api/v2/agent-feedback when results are missing, confusing, incomplete, or need a different data signal.

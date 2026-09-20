@@ -1,0 +1,143 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/_original/charitysense-com-openapi-original.yaml
+docs: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
+summary: >-
+  Derived from 40 component schemas, their $ref links and their EIN / cursor fields. The model is an evidence graph
+  rooted on the Organization (keyed by EIN), read through a filing context (Form + Year). The bounded CharityPage
+  is the entry point: it names the available form contexts and advertises the Sections that can be lazily fetched,
+  each of which returns Data plus EvidenceRefs that point back into a specific filed return. Grant-flow entities
+  (Funder / grantee / award / subaward / money-network edge) are all Organization-to-Organization edges keyed by
+  EIN on both ends. There is no nesting between top-level resources - a client follows EIN, section Id and
+  NextCursor rather than expanding.
+id_style:
+  format: IRS Employer Identification Number - nine digits, no punctuation
+  prefixes_published: false
+  note: >-
+    EIN is the only public identifier. It is typed integer (10000000-999999999) as a path parameter and string on
+    response objects. Section Ids are provider-defined strings advertised by the page (e.g. MoneyFlow, Schedules,
+    People, GrantReadiness, MoneyNetwork, RelatedOrganizations, WhatTheyDo). Cursors are opaque strings except on
+    search, where Cursor is a one-based page number. EvidenceRef.Ref is an opaque evidence handle.
+entities:
+- name: Organization
+  description: A U.S.-registered nonprofit or tax-exempt filer, identified by EIN; surfaces as a search hit, a page hero, or a counterparty.
+  schemas: [SearchHit, CharityPage (Hero), Funder, DiligenceSummary]
+  key: EIN
+  relationships:
+  - has_many: Filing
+    via: CharityPage.Context.AvailableForms / getCharityFilings
+  - has_one: CharityPage
+    via: getCharityPage(ein)
+  - has_many: Section
+    via: CharityPage.Sections[].Id
+  - has_many: MoneyNetworkEdge
+    via: getCharityMoneyNetwork(ein)
+  - has_many: Funder
+    via: FunderList.EIN -> Funder.EIN
+  - has_many: Grantee
+    via: GranteeList.EIN -> Funder.EIN (grantee rows reuse the Funder schema)
+  - has_many: FederalAward
+    via: AwardList.EIN
+  - has_many: FederalSubaward
+    via: SubawardList.EIN
+  - has_many: RelatedOrganization
+    via: DiscoveryResults / RelatedOrganizationsData.Items
+  - has_one: OperatingModel
+    via: CharityPage.OperatingModel
+- name: FilingContext
+  description: A (Form, Year) pair selecting one filed return; Form is one of 990, 990EZ, 990N, 990PF, 990T.
+  schemas: [CharityPage.Context, CharityFilings]
+  key: [Form, Year]
+  relationships:
+  - belongs_to: Organization
+    via: EIN
+  - has_many: EvidenceRef
+    via: EvidenceRef.Form + EvidenceRef.TaxYear
+- name: CharityPage
+  description: Bounded first-paint profile - Context, Hero, Verdict, Sections manifest, optional OperatingModel and EvidenceRefs.
+  schemas: [CharityPage, SectionManifestItem, OperatingModel, OperatingModelClassification, OperatingModelModifier]
+  relationships:
+  - belongs_to: Organization
+    via: Hero.EIN
+  - has_many: SectionManifestItem
+    via: Sections[]
+  - has_many: EvidenceRef
+    via: Hero.EvidenceRefs[]
+- name: Section
+  description: One advertised (or synthesized) block of the profile - Band or Evidence kind - returned with Data, EvidenceRefs, optional ScheduleIndex and NextCursor.
+  schemas: [CharitySection, SectionManifestItem, MoneyFlowData, FinancialTrend, FinancialTrendPoint, RelatedOrganizationsData, RelationshipItem, ScheduleIndexItem]
+  key: SectionManifestItem.Id
+  relationships:
+  - belongs_to: CharityPage
+    via: Section (SectionManifestItem)
+  - has_many: EvidenceRef
+    via: EvidenceRefs[]
+  - has_one: MoneyFlowData
+    via: Data (when Id is MoneyFlow)
+  - has_one: RelatedOrganizationsData
+    via: Data (when Id is RelatedOrganizations)
+  - has_many: ScheduleIndexItem
+    via: ScheduleIndex[]
+- name: EvidenceRef
+  description: Pointer from a fact back to its source - Collection, Form, TaxYear, Ref, SourcePath, SourceDocument, Citation. Re-usable as the EvidenceRef query parameter on getCharitySection only when returned earlier.
+  schemas: [EvidenceRef]
+  relationships:
+  - belongs_to: FilingContext
+    via: Form + TaxYear
+- name: MoneyNetworkEdge
+  description: Directed counterparty edge (Incoming | Outgoing) from the requested EIN, latest filing only; investigative evidence, not a finding.
+  schemas: [MoneyNetwork]
+  relationships:
+  - belongs_to: Organization
+    via: requested ein
+  - has_one: Organization
+    via: counterparty EIN
+- name: Funder
+  description: A funding counterparty row - reused for funders, grantees and cohort funders - keyed by EIN with amounts and years.
+  schemas: [Funder, FunderList, GranteeList, CohortFunderList]
+  key: EIN
+  relationships:
+  - belongs_to: Organization
+    via: FunderList.EIN / GranteeList.EIN
+  - has_one: Organization
+    via: Funder.EIN
+- name: FederalAward
+  description: Federal award and subaward records for an EIN, cursor paged.
+  schemas: [AwardList, SubawardList]
+  relationships:
+  - belongs_to: Organization
+    via: EIN
+- name: DatasetStats
+  description: Corpus-wide totals, form counts, freshness and sector aggregates.
+  schemas: [Stats, SectorOverview, SectorYear, SectorComposition, TopLists, Health]
+  relationships:
+  - has_many: SectorOverview
+    via: Stats -> SectorOverview -> SectorYear
+- name: Usage
+  description: The calling paid key's current UTC-day Data and Advanced allowance.
+  schemas: [UsageSummary, UsageAllowance]
+  relationships:
+  - has_one: UsageAllowance
+    via: Data
+  - has_one: UsageAllowance
+    via: Advanced
+- name: AssistantInteraction
+  description: Write-side records - a charity question, agent feedback, an assistant chat turn - and the assistant capability descriptor.
+  schemas: [CharityQuestionRequest, QuestionResult, AgentFeedbackRequest, FeedbackResult, AssistantChatRequest, AssistantCapabilities]
+  relationships:
+  - belongs_to: Organization
+    via: CharityQuestionRequest.EIN / AgentFeedbackRequest.EIN / AssistantChatRequest.Context.EIN (optional)
+- name: Error
+  description: The detail envelope shared by every 4xx/5xx.
+  schemas: [Error]
+operation_map:
+  Organization: [searchOrganizations, getCharityPage, getCharityBrandIcon, discoverRelatedOrganizations, getDiligenceSummary]
+  FilingContext: [getCharityFilings]
+  Section: [getCharitySection]
+  MoneyNetworkEdge: [getCharityMoneyNetwork]
+  Funder: [getCharityFunders, getCharityGrantees, getFundersForCohort]
+  FederalAward: [getCharityAwards, getCharitySubawards]
+  DatasetStats: [getStats, getTopLists, getHealth]
+  Usage: [getApiUsage]
+  AssistantInteraction: [submitCharityQuestion, submitAgentFeedback, streamAssistantChat, getAssistantCapabilities]
+render: null
