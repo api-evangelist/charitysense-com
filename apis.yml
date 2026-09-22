@@ -21,6 +21,21 @@ specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
+- Non-Profit
+- Charities
+- Due Diligence
+- IRS Form 990
+- Donor Research
+- Grants
+- Philanthropy
+- Open Data
+- Agents
+- A2A
+- Impact Verification
+- Edge AI
+- United States
+- Company
+tags_raw:
 - Nonprofits
 - Charities
 - Due Diligence
@@ -53,6 +68,14 @@ apis:
   image: https://data.charitysense.com/logo.svg
   position: Producing
   tags:
+  - Non-Profit
+  - Charities
+  - Due Diligence
+  - IRS Form 990
+  - Donor Research
+  - Grants
+  - Search
+  tags_raw:
   - Nonprofits
   - Charities
   - Due Diligence
