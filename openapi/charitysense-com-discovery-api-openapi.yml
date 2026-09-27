@@ -1,0 +1,685 @@
+openapi: 3.2.0
+info:
+  title: Charitysense Com Discovery API
+  version: 3.0.0
+  contact:
+    name: CharitySense
+    email: mazhar@charitysense.com
+    url: https://data.charitysense.com/contact
+  description: 'Operations tagged Discovery across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://data.charitysense.com
+security: []
+tags:
+- name: Discovery
+  description: Identity search and related-organization discovery.
+paths:
+  /api/v2/top-lists:
+    get:
+      tags:
+      - Discovery
+      operationId: getTopLists
+      summary: Browse the largest current filers in each cause, with live ratings
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: One list per cause. Postcard filers, organizations without a current live rating, and organizations whose latest return predates FilingYear are excluded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopLists'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/search:
+    get:
+      tags:
+      - Discovery
+      operationId: searchOrganizations
+      summary: Search canonical organization identity or discovery indexes
+      parameters:
+      - name: Query
+        in: query
+        required: true
+        description: Organization name, EIN, alias, cause, or donor intent.
+        schema:
+          type: string
+          minLength: 1
+      - name: Mode
+        in: query
+        description: Identity uses deterministic identity fields; Discovery includes semantic cause text.
+        schema:
+          type: string
+          enum:
+          - Identity
+          - Discovery
+          default: Identity
+      - name: Cursor
+        in: query
+        description: One-based Typesense result page.
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: Limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 10
+      - name: State
+        in: query
+        schema:
+          type: string
+      - name: Cause
+        in: query
+        schema:
+          type: string
+      - name: MinRevenue
+        in: query
+        schema:
+          type: number
+      - name: Sort
+        in: query
+        schema:
+          type: string
+          enum:
+          - Relevance
+          - Revenue
+          - Assets
+          - Recent
+          default: Relevance
+      - name: Facets
+        in: query
+        description: When true, include facet bucket counts for geography, cause, form, entity type, and revenue bands.
+        schema:
+          type: boolean
+          default: false
+      - name: PrimaryForm
+        in: query
+        schema:
+          type: string
+          enum:
+          - '990'
+          - 990EZ
+          - 990N
+          - 990PF
+          - 990T
+      - name: EntityType
+        in: query
+        schema:
+          type: string
+          enum:
+          - PrivateFoundation
+          - UnrelatedBusinessFiler
+          - SmallTaxExemptOrganization
+          - OperatingOrOtherTaxExempt
+      - name: EvidenceTier
+        in: query
+        description: Discovery mode only.
+        schema:
+          type: string
+          enum:
+          - OfficialWebsite
+          - FiledProgram
+          - FiledMission
+          - ClassificationOnly
+      - name: MaxRevenue
+        in: query
+        schema:
+          type: number
+      - name: CauseLabel
+        in: query
+        description: Exact canonical cause label, e.g. "Human Services".
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Search results from a canonical search alias.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/funders/for-cohort:
+    get:
+      tags:
+      - Discovery
+      operationId: getFundersForCohort
+      summary: Find the funders backing a set of organizations
+      description: Ranks funders by how many of the supplied organizations they reach, which is the question a grantmaker asks of a shortlist rather than of a single grantee.
+      parameters:
+      - name: EINs
+        in: query
+        required: true
+        description: Comma-separated EINs, up to 25.
+        schema:
+          type: string
+      - name: Limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 50
+      - name: MinYear
+        in: query
+        schema:
+          type: integer
+      - name: AllCategories
+        in: query
+        schema:
+          type: boolean
+          default: false
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Funders ranked by cohort reach, then amount.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortFunderList'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/discovery:
+    get:
+      tags:
+      - Discovery
+      operationId: discoverRelatedOrganizations
+      summary: Discover organizations related by cause or region
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - $ref: '#/components/parameters/Form'
+      - name: Intent
+        in: query
+        description: Optional discovery text. The profile cause or mission is used when omitted.
+        schema:
+          type: string
+      - name: Limit
+        in: query
+        description: Maximum related organizations to return.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 25
+          default: 6
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Related organizations from the discovery search alias.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoveryResults'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/diligence-summary:
+    get:
+      tags:
+      - Discovery
+      operationId: getDiligenceSummary
+      summary: Get bulk grant-readiness, financial, and live-rating summaries for up to 25…
+      parameters:
+      - name: EINs
+        in: query
+        required: true
+        description: Comma-separated nine-digit EINs (maximum 25).
+        schema:
+          type: string
+          minLength: 9
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Per-organization diligence summaries in request order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiligenceSummary'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+components:
+  schemas:
+    SearchHit:
+      type: object
+      required:
+      - EIN
+      - Name
+      properties:
+        EIN: {}
+        Name:
+          type: string
+        Location:
+          type: string
+        Description:
+          type: string
+        Cause:
+          type: string
+        PrimaryForm:
+          type: string
+        FormTypes:
+          type: array
+          items:
+            type: string
+        FamilyID: {}
+        OrganizationRole:
+          type: string
+          enum:
+          - Central
+          - Member
+          - Independent
+        EntityType:
+          type: string
+        EvidenceTier:
+          type: string
+          enum:
+          - OfficialWebsite
+          - FiledProgram
+          - FiledMission
+          - ClassificationOnly
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+        WhyMatched:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        Match:
+          type: object
+          additionalProperties: true
+        Explanation:
+          type: string
+        Similarity:
+          type: object
+          required:
+          - Score
+          - EvidenceCoverage
+          - Components
+          properties:
+            Score:
+              type: integer
+              minimum: 0
+              maximum: 100
+            EvidenceCoverage:
+              type: integer
+              minimum: 0
+              maximum: 100
+            Components:
+              type: array
+              items:
+                type: object
+                required:
+                - Kind
+                - State
+                - Weight
+                properties:
+                  Kind:
+                    type: string
+                  State:
+                    type: string
+                    enum:
+                    - Matched
+                    - NotMatched
+                    - Unavailable
+                  Score:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  Weight:
+                    type: number
+                  Contribution:
+                    type: number
+                  Values:
+                    type: array
+                    items:
+                      type: string
+                additionalProperties: false
+          additionalProperties: false
+      additionalProperties: false
+    CohortFunderList:
+      type: object
+      required:
+      - CohortEINs
+      - Funders
+      properties:
+        CohortEINs:
+          type: array
+          items:
+            type: integer
+        CohortSize:
+          type: integer
+        Funders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        FunderCount:
+          type: integer
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    TopLists:
+      type: object
+      required:
+      - Week
+      - FilingYear
+      - Lists
+      properties:
+        Week:
+          type: integer
+        FilingYear:
+          type: integer
+          description: The tax year most of the sector has filed for. An organization whose latest return is older is held out.
+        Lists:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+            - Key
+            - Title
+            - Description
+            - Causes
+            - Organizations
+            properties:
+              Key:
+                type: string
+              Title:
+                type: string
+              Description:
+                type: string
+              Causes:
+                type: array
+                description: The IRS classification labels this cause holds.
+                items:
+                  type: string
+              Organizations:
+                type: array
+                minItems: 10
+                maxItems: 10
+                description: Largest first by filed revenue.
+                items:
+                  type: object
+                  required:
+                  - EIN
+                  - Name
+                  - Score
+                  properties:
+                    EIN:
+                      type: string
+                    Name:
+                      type: string
+                    Location:
+                      type: string
+                    PrimaryForm:
+                      type: string
+                    Revenue:
+                      type: number
+                    LatestYear:
+                      type: integer
+                    Score:
+                      type: integer
+                  additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+    DiscoveryResults:
+      type: object
+      required:
+      - Intent
+      - PolicyVersion
+      - Weights
+      - Organizations
+      properties:
+        Intent: {}
+        PolicyVersion:
+          type: string
+        Weights:
+          type: object
+          additionalProperties:
+            type: number
+        Organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    SearchResults:
+      type: object
+      required:
+      - Query
+      - Mode
+      - Hits
+      - Found
+      - Page
+      properties:
+        Query:
+          type: string
+        Mode:
+          type: string
+          enum:
+          - Identity
+          - Discovery
+        Hits:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/SearchHit'
+            - required:
+              - Match
+        Found:
+          type: integer
+        Page:
+          type: integer
+        QueryVersion:
+          type: string
+        Facets:
+          type: object
+          description: Facet buckets with counts, present only when Facets=true.
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+        NextCursor:
+          type: string
+        Resolution:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    Funder:
+      type: object
+      required:
+      - EIN
+      properties:
+        EIN:
+          type: integer
+        Name:
+          type: string
+        Location:
+          type: string
+        PrimaryForm:
+          type: string
+        EntityType:
+          type: string
+        ProfileAvailable:
+          type: boolean
+          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
+        Amount:
+          type: number
+        GrantCount:
+          type: integer
+        RecipientCount:
+          type: integer
+          description: How many of the requested organizations this funder reaches. Cohort responses only.
+        EarliestYear:
+          type: integer
+        LatestYear:
+          type: integer
+        Categories:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    DiligenceSummary:
+      type: object
+      required:
+      - Organizations
+      properties:
+        Organizations:
+          type: array
+          items:
+            type: object
+            required:
+            - EIN
+            properties:
+              EIN:
+                type: integer
+              Name:
+                type: string
+              Location:
+                type: string
+              PrimaryForm:
+                type: string
+              Revenue:
+                type: number
+              Assets:
+                type: number
+              LatestYear:
+                type: integer
+              Rating:
+                type: object
+                required:
+                - Score
+                - State
+                properties:
+                  Score:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  State:
+                    type: string
+                additionalProperties: false
+              Readiness:
+                type: object
+                properties:
+                  Label:
+                    type: string
+                    enum:
+                    - Clear
+                    - Needs review
+                    - Compliance issue flagged
+                  Tone:
+                    type: string
+                    enum:
+                    - Good
+                    - Caution
+                    - Concern
+                  ReviewReasons:
+                    type: array
+                    items:
+                      type: string
+                  RestrictionStatus:
+                    type: string
+                    enum:
+                    - Confirmed
+                    - Review
+                    - Clear
+                  RestrictionConfirmed:
+                    type: integer
+                  RestrictionReview:
+                    type: integer
+                additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+  parameters:
+    Ein:
+      name: ein
+      in: path
+      required: true
+      description: Nine-digit Employer Identification Number.
+      schema:
+        type: integer
+        minimum: 10000000
+        maximum: 999999999
+    Form:
+      name: Form
+      in: query
+      description: Select an available form context. Defaults to the profile's primary form.
+      schema:
+        type: string
+        enum:
+        - '990'
+        - 990EZ
+        - 990N
+        - 990PF
+        - 990T
+  responses:
+    ErrorResponse:
+      description: Request error in detail, with a stable ErrorCode when available.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-CharitySense-API-Key
+externalDocs:
+  description: Agent integration guide and recommended workflow.
+  url: https://data.charitysense.com/agents
+x-refined-from:
+- charitysense-com-openapi-original.json
+- charitysense-com-openapi.yml

@@ -1,0 +1,1109 @@
+openapi: 3.2.0
+info:
+  title: Charitysense Com Profiles API
+  version: 3.0.0
+  contact:
+    name: CharitySense
+    email: mazhar@charitysense.com
+    url: https://data.charitysense.com/contact
+  description: 'Operations tagged Profiles across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://data.charitysense.com
+security: []
+tags:
+- name: Profiles
+  description: Canonical overlay profile and filing resources.
+paths:
+  /api/v2/charity/{ein}/page:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityPage
+      summary: Get the bounded first-paint profile payload
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - $ref: '#/components/parameters/Form'
+      - $ref: '#/components/parameters/Year'
+      responses:
+        '200':
+          description: Selected form context, hero, live verdict, and section manifest.
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharityPage'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/brand-icon:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityBrandIcon
+      summary: Read the nonprofit icon bytes from the canonical website-enrichment record
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: A bounded raster icon served from the canonical database record.
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            image/avif: {}
+            image/gif: {}
+            image/jpeg: {}
+            image/png: {}
+            image/webp: {}
+            image/x-icon: {}
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/sections/{SectionId}:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharitySection
+      summary: Get one section advertised by the page manifest
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: SectionId
+        in: path
+        required: true
+        description: Section Id returned by CharityPage.Sections.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Form'
+      - $ref: '#/components/parameters/Year'
+      - $ref: '#/components/parameters/OpaqueCursor'
+      - $ref: '#/components/parameters/SectionLimit'
+      - $ref: '#/components/parameters/EvidenceRef'
+      responses:
+        '200':
+          description: Section data with canonical evidence references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharitySection'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/filings:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityFilings
+      summary: List filing metadata for one form context
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - $ref: '#/components/parameters/Form'
+      - $ref: '#/components/parameters/OpaqueCursor'
+      - name: Limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+      responses:
+        '200':
+          description: Filing metadata and an optional continuation cursor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharityFilings'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/money-network:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityMoneyNetwork
+      summary: Page through exact latest-filing counterparties
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: Scope
+        in: query
+        description: The currently supported graph scope. Historical graph retrieval is not available.
+        schema:
+          type: string
+          enum:
+          - Latest
+          default: Latest
+      - name: Cursor
+        in: query
+        description: Opaque graph document cursor returned by NextCursor.
+        schema:
+          type: string
+      - name: Direction
+        in: query
+        description: Optional direction relative to the requested EIN.
+        schema:
+          type: string
+          enum:
+          - Incoming
+          - Outgoing
+      - $ref: '#/components/parameters/SectionLimit'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Directed counterparty aggregates with graph evidence.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoneyNetwork'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/awards:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityAwards
+      summary: Page through every federal award this organization holds
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: Cursor
+        in: query
+        description: Row cursor returned by NextCursor.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/SectionLimit'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Federal awards with purpose, agencies, assistance listing, and place of performance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AwardList'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/subawards:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharitySubawards
+      summary: Page through subawards received, with their prime awards
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: Cursor
+        in: query
+        description: Row cursor returned by NextCursor.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/SectionLimit'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Subawards with the prime award and prime recipient behind each.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubawardList'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/grantees:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityGrantees
+      summary: List the organizations this one has funded
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: Limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 50
+      - name: MinYear
+        in: query
+        schema:
+          type: integer
+      - name: MinAmount
+        in: query
+        description: Only count grants at or above this amount.
+        schema:
+          type: number
+      - name: AllCategories
+        in: query
+        schema:
+          type: boolean
+          default: false
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Recipients ranked by total amount granted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GranteeList'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/charity/{ein}/funders:
+    get:
+      tags:
+      - Profiles
+      operationId: getCharityFunders
+      summary: List the organizations that have funded this one
+      parameters:
+      - $ref: '#/components/parameters/Ein'
+      - name: Limit
+        in: query
+        description: Maximum funders to return, largest by amount first.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 50
+      - name: MinYear
+        in: query
+        description: Only count grants filed for this tax year or later.
+        schema:
+          type: integer
+      - name: AllCategories
+        in: query
+        description: Include non-grant filed money flows alongside grants paid and Schedule I.
+        schema:
+          type: boolean
+          default: false
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Funders ranked by total amount granted to this organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunderList'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+components:
+  schemas:
+    CharitySection:
+      type: object
+      required:
+      - Section
+      - Data
+      - EvidenceRefs
+      properties:
+        Section:
+          $ref: '#/components/schemas/SectionManifestItem'
+        Data:
+          description: Canonical section data. MoneyFlow responses conform to MoneyFlowData.
+          anyOf:
+          - $ref: '#/components/schemas/MoneyFlowData'
+          - $ref: '#/components/schemas/RelatedOrganizationsData'
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
+        EvidenceRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        ScheduleIndex:
+          type: array
+          description: Stable lightweight index for a Schedules response; complete indexed schedules remain in paged Data.
+          items:
+            $ref: '#/components/schemas/ScheduleIndexItem'
+        NextCursor:
+          type: string
+      additionalProperties: false
+    RelatedOrganizationsData:
+      type: object
+      required:
+      - Relationships
+      properties:
+        Relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipItem'
+      additionalProperties: false
+    MoneyFlowData:
+      type: object
+      required:
+      - FinancialTrend
+      properties:
+        Revenues:
+          type: object
+          additionalProperties: true
+        Expenses:
+          type: object
+          additionalProperties: true
+        Assets:
+          type: object
+          additionalProperties: true
+        Liabilities:
+          type: object
+          additionalProperties: true
+        FundBalance:
+          type: object
+          additionalProperties: true
+        FinancialTrend:
+          $ref: '#/components/schemas/FinancialTrend'
+      additionalProperties: false
+    GranteeList:
+      type: object
+      required:
+      - EIN
+      - Grantees
+      properties:
+        EIN:
+          type: integer
+        Grantees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        GranteeCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    AwardList:
+      type: object
+      required:
+      - EIN
+      - Awards
+      properties:
+        EIN:
+          type: integer
+        Awards:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        AwardCount:
+          type: integer
+        AttributionWarnings:
+          type: integer
+          description: Awards on this page whose filed recipient name matches no known name for the organization. Awards are attributed through a UEI-to-EIN mapping derived from the Federal Audit Clearinghouse, and one bad row there can attach another entity's award history to an unrelated EIN.
+        NextCursor:
+          type: string
+      additionalProperties: false
+    OperatingModelModifier:
+      type: object
+      required:
+      - Key
+      - Label
+      - Summary
+      - EvidenceRefs
+      properties:
+        Key:
+          type: string
+        Label:
+          type: string
+        Value:
+          type: number
+        Summary:
+          type: string
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    FunderList:
+      type: object
+      required:
+      - EIN
+      - Funders
+      properties:
+        EIN:
+          type: integer
+        Funders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        FunderCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    FinancialTrend:
+      type: object
+      required:
+      - Revenue
+      - Expense
+      - Assets
+      - Liabilities
+      properties:
+        Revenue:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Expense:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+      additionalProperties: false
+    CharityPage:
+      type: object
+      required:
+      - Context
+      - Hero
+      - Verdict
+      - Sections
+      properties:
+        Context:
+          type: object
+          required:
+          - SelectedForm
+          - SelectedYear
+          - PrimaryForm
+          - AvailableForms
+          properties:
+            SelectedForm:
+              type: string
+              enum:
+              - '990'
+              - 990EZ
+              - 990N
+              - 990PF
+              - 990T
+            SelectedYear:
+              type: integer
+            PrimaryForm:
+              type: string
+            AvailableForms:
+              type: array
+              items:
+                type: object
+                required:
+                - Form
+                properties:
+                  Form:
+                    type: string
+                  LatestYear:
+                    type: integer
+                  Primary:
+                    type: boolean
+                additionalProperties: false
+            FilingRange:
+              type: object
+              properties:
+                FirstYear:
+                  type: integer
+                LatestYear:
+                  type: integer
+              additionalProperties: false
+          additionalProperties: true
+        Hero:
+          type: object
+          required:
+          - EIN
+          - Name
+          - Form
+          - Year
+          - Enrichment
+          - CTA
+          - EvidenceRefs
+          properties:
+            EIN:
+              type: string
+            Name:
+              type: string
+            LegalName:
+              type: string
+              description: Filed legal name when it is available from the compiled presentation contract.
+            Form:
+              type: string
+            Year:
+              type: integer
+            Location:
+              type: object
+              properties:
+                City:
+                  type: string
+                State:
+                  type: string
+                Country:
+                  type: string
+              additionalProperties: false
+            Website:
+              type: string
+              description: Selected official website from canonical presentation sources.
+            Phone:
+              type: string
+              description: Selected organization phone from canonical presentation sources.
+            Mission:
+              type: string
+              description: The selected mission statement for the organization.
+            Description:
+              type: string
+              description: The selected general overview from canonical presentation sources.
+            CurrentYearActivity:
+              type: string
+              description: The primary program accomplishment reported in the selected filing year.
+            Financials:
+              type: object
+              description: Selected-filing amounts used for concise profile identity and search metadata.
+              properties:
+                Revenue:
+                  type: number
+                Expense:
+                  type: number
+                Assets:
+                  type: number
+                Liabilities:
+                  type: number
+              additionalProperties: false
+            IRSRecognitionDate:
+              oneOf:
+              - type: string
+              - type: number
+            Chips:
+              type: array
+              items:
+                type: object
+                required:
+                - Label
+                - EvidenceRef
+                properties:
+                  Kind:
+                    type: string
+                    enum:
+                    - Sector
+                    - Affiliation
+                    - Context
+                  Label:
+                    type: string
+                  EvidenceRef:
+                    type: string
+                additionalProperties: false
+            BrandAssets:
+              type: object
+              description: Canonical website-enrichment brand-assets presentation block.
+              additionalProperties: true
+            Contact:
+              type: object
+              description: Canonical website-enrichment contact block, including SocialLinks when captured by enrichment.
+              properties:
+                SocialLinks:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+              additionalProperties: true
+            Enrichment:
+              type: object
+              description: Organization-level website-evidence status and capture freshness.
+              required:
+              - State
+              properties:
+                State:
+                  type: string
+                  enum:
+                  - Enriched
+                  - NotEnriched
+                CapturedAt:
+                  type: string
+                  format: date-time
+                  description: Capture date for applicable organization-level website-enrichment evidence.
+              additionalProperties: false
+            OperatingModel:
+              $ref: '#/components/schemas/OperatingModel'
+            CTA:
+              type: string
+              enum:
+              - EnhanceProfile
+              - RequestDeeperDiligence
+            EvidenceRefs:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/EvidenceRef'
+          additionalProperties: true
+        Verdict:
+          type: object
+          required:
+          - State
+          - PolicyVersion
+          - BottomLine
+          properties:
+            State:
+              type: string
+              enum:
+              - Scored
+              - NotEnoughData
+              - NotRatedHere
+            Score:
+              type: number
+            Verdict:
+              type: string
+            PolicyVersion:
+              type: string
+            BottomLine:
+              type: string
+          additionalProperties: true
+        Sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionManifestItem'
+        SEO:
+          type: object
+          description: Published runtime data_seo metadata for this entity.
+          additionalProperties: true
+        CompiledAt: {}
+        SchemaVersion: {}
+      additionalProperties: false
+    RelationshipItem:
+      type: object
+      required:
+      - Organization
+      - Roles
+      - RelationshipType
+      - Confidences
+      - Evidence
+      properties:
+        Organization:
+          type: object
+          additionalProperties: true
+        Roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Source
+            - Target
+        RelationshipType:
+          type: string
+        Confidences:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Authoritative
+            - Strong
+        Evidence:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: false
+    ScheduleIndexItem:
+      type: object
+      required:
+      - Name
+      - EvidenceRef
+      properties:
+        Name:
+          type: string
+        EvidenceRef:
+          type: string
+      additionalProperties: false
+    OperatingModelClassification:
+      type: object
+      required:
+      - Key
+      - Label
+      - Summary
+      - EvidenceRefs
+      properties:
+        Key:
+          type: string
+        Label:
+          type: string
+        PrimaryShare:
+          type: number
+        Summary:
+          type: string
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    SubawardList:
+      type: object
+      required:
+      - EIN
+      - Subawards
+      properties:
+        EIN:
+          type: integer
+        Subawards:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        SubawardCount:
+          type: integer
+        AttributionWarnings:
+          type: integer
+          description: Subawards whose filed recipient name matches no known name for the organization.
+        Truncated:
+          type: boolean
+        NextCursor:
+          type: string
+      additionalProperties: false
+    OperatingModel:
+      type: object
+      description: Display operating model sourced from the selected full-return context when available.
+      required:
+      - Form
+      - Resource
+      - Delivery
+      properties:
+        Form:
+          type: string
+          enum:
+          - '990'
+          - 990EZ
+          - 990PF
+        TaxYear:
+          type: integer
+        Resource:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Delivery:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OperatingModelModifier'
+      additionalProperties: false
+    SectionManifestItem:
+      type: object
+      required:
+      - Id
+      - Kind
+      - Title
+      - Summary
+      - SourceTags
+      properties:
+        Id:
+          type: string
+        Kind:
+          type: string
+          enum:
+          - Band
+          - Evidence
+        Title:
+          type: string
+        Summary:
+          type: string
+        SourceTags:
+          type: array
+          items:
+            type: string
+        Form:
+          type: string
+        Year:
+          type: integer
+        Ref:
+          type: string
+        Pageable:
+          type: boolean
+        Status:
+          type: object
+          required:
+          - Label
+          - Tone
+          properties:
+            Label:
+              type: string
+            Tone:
+              type: string
+              enum:
+              - Good
+              - Caution
+              - Concern
+              - Neutral
+            Score:
+              type: number
+          additionalProperties: false
+      additionalProperties: true
+    EvidenceRef:
+      type: object
+      required:
+      - Ref
+      properties:
+        Collection:
+          type: string
+        Form:
+          type: string
+        TaxYear:
+          type: integer
+        Ref:
+          type: string
+        SourcePath:
+          type: string
+        SourceDocument:
+          type: string
+        Citation:
+          type: string
+      additionalProperties: true
+    FinancialTrendPoint:
+      type: object
+      required:
+      - Year
+      properties:
+        Year:
+          type: integer
+        Value:
+          type: number
+        EvidenceRef:
+          type: string
+          description: Exact Forms.<Form>.Latest/Filings[n] canonical value reference. Omitted for a year gap.
+      additionalProperties: false
+    Funder:
+      type: object
+      required:
+      - EIN
+      properties:
+        EIN:
+          type: integer
+        Name:
+          type: string
+        Location:
+          type: string
+        PrimaryForm:
+          type: string
+        EntityType:
+          type: string
+        ProfileAvailable:
+          type: boolean
+          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
+        Amount:
+          type: number
+        GrantCount:
+          type: integer
+        RecipientCount:
+          type: integer
+          description: How many of the requested organizations this funder reaches. Cohort responses only.
+        EarliestYear:
+          type: integer
+        LatestYear:
+          type: integer
+        Categories:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    CharityFilings:
+      type: object
+      required:
+      - Form
+      - Filings
+      properties:
+        Form:
+          type: string
+        Filings:
+          type: array
+          items:
+            type: object
+            properties:
+              Year:
+                type: integer
+              TaxPeriodEnd: {}
+              Validation: {}
+              Source:
+                type: object
+                additionalProperties: true
+            additionalProperties: false
+        NextCursor:
+          type: string
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    MoneyNetwork:
+      type: object
+      required:
+      - Scope
+      properties:
+        Scope:
+          type: string
+          enum:
+          - Latest
+        Edges:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        NextCursor:
+          type: string
+      additionalProperties: false
+  responses:
+    ErrorResponse:
+      description: Request error in detail, with a stable ErrorCode when available.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    Form:
+      name: Form
+      in: query
+      description: Select an available form context. Defaults to the profile's primary form.
+      schema:
+        type: string
+        enum:
+        - '990'
+        - 990EZ
+        - 990N
+        - 990PF
+        - 990T
+    EvidenceRef:
+      name: EvidenceRef
+      in: query
+      description: 'Exact EvidenceRef returned by a page or section response. Use it when retrieving an evidence-targeted historical filing or schedule row.
+
+        '
+      schema:
+        type: string
+    OpaqueCursor:
+      name: Cursor
+      in: query
+      description: Opaque continuation value returned by NextCursor.
+      schema:
+        type: string
+    Ein:
+      name: ein
+      in: path
+      required: true
+      description: Nine-digit Employer Identification Number.
+      schema:
+        type: integer
+        minimum: 10000000
+        maximum: 999999999
+    Year:
+      name: Year
+      in: query
+      description: Select a filing year. Defaults to the latest filing in the selected form context.
+      schema:
+        type: integer
+    SectionLimit:
+      name: Limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-CharitySense-API-Key
+externalDocs:
+  description: Agent integration guide and recommended workflow.
+  url: https://data.charitysense.com/agents
+x-refined-from:
+- charitysense-com-openapi-original.json
+- charitysense-com-openapi.yml

@@ -1,0 +1,257 @@
+openapi: 3.2.0
+info:
+  title: Charitysense Com Dataset API
+  version: 3.0.0
+  contact:
+    name: CharitySense
+    email: mazhar@charitysense.com
+    url: https://data.charitysense.com/contact
+  description: 'Operations tagged Dataset across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://data.charitysense.com
+security: []
+tags:
+- name: Dataset
+  description: Service health and published dataset statistics. Statistics and top lists consume the Advanced allowance.
+paths:
+  /api/v2/health:
+    get:
+      tags:
+      - Dataset
+      operationId: getHealth
+      summary: Check API liveness
+      responses:
+        '200':
+          description: The API process is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+  /api/v2/stats:
+    get:
+      tags:
+      - Dataset
+      operationId: getStats
+      summary: Get published dataset statistics
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Published corpus totals and freshness metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+    servers:
+    - url: https://data.charitysense.com
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+      - Status
+      - SchemaVersion
+      - Documents
+      properties:
+        Status:
+          type: string
+          const: Healthy
+        SchemaVersion:
+          type: integer
+          const: 2
+        CompiledAt: {}
+        Documents:
+          type: integer
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    Stats:
+      type: object
+      required:
+      - Charities
+      - Filings
+      - ModalLatestYear
+      - ComputedAt
+      properties:
+        Charities:
+          type: integer
+        Filings:
+          type: integer
+        SectorRevenue:
+          type: number
+        ProgramDollars:
+          type: number
+        ModalLatestYear:
+          type: integer
+        FilingsByForm:
+          type: object
+          additionalProperties:
+            type: integer
+        CountsApproximate:
+          type: boolean
+        SectorOverview:
+          $ref: '#/components/schemas/SectorOverview'
+        SectorComposition:
+          $ref: '#/components/schemas/SectorComposition'
+        ComputedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    SectorOverview:
+      type: object
+      required:
+      - Form
+      - OrganizationCount
+      - FilingCount
+      - LatestCompleteYear
+      - Years
+      properties:
+        Form:
+          type: string
+          const: '990'
+        OrganizationCount:
+          type: integer
+        FilingCount:
+          type: integer
+        LatestCompleteYear:
+          type: integer
+        Years:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectorYear'
+      additionalProperties: false
+    SectorComposition:
+      type: object
+      required:
+      - RegistryOrganizations
+      - Groups
+      properties:
+        RegistryOrganizations:
+          type: integer
+        RegistryUpdatedAt:
+          type: string
+          format: date-time
+        Groups:
+          type: array
+          items:
+            type: object
+            required:
+            - Key
+            - Label
+            - Organizations
+            properties:
+              Key:
+                type: string
+              Label:
+                type: string
+              Organizations:
+                type: integer
+            additionalProperties: false
+      additionalProperties: false
+    SectorYear:
+      type: object
+      required:
+      - TaxYear
+      - OrganizationCount
+      - FilingCount
+      properties:
+        TaxYear:
+          type: integer
+        OrganizationCount:
+          type: integer
+        FilingCount:
+          type: integer
+        Revenue:
+          type: object
+          properties:
+            Total:
+              type: number
+            Contributions:
+              type: number
+            ProgramService:
+              type: number
+            Investment:
+              type: number
+            Other:
+              type: number
+          additionalProperties: false
+        Expenses:
+          type: object
+          properties:
+            Total:
+              type: number
+            ProgramServices:
+              type: number
+            ManagementAndGeneral:
+              type: number
+            Fundraising:
+              type: number
+            GrantsTotal:
+              type: number
+            DomesticOrganizationGrants:
+              type: number
+            DomesticIndividualGrants:
+              type: number
+            ForeignGrants:
+              type: number
+          additionalProperties: false
+        BalanceSheet:
+          type: object
+          properties:
+            Assets:
+              type: number
+            Liabilities:
+              type: number
+          additionalProperties: false
+        Coverage:
+          type: object
+          additionalProperties:
+            type: integer
+      additionalProperties: false
+  responses:
+    ErrorResponse:
+      description: Request error in detail, with a stable ErrorCode when available.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-CharitySense-API-Key
+externalDocs:
+  description: Agent integration guide and recommended workflow.
+  url: https://data.charitysense.com/agents
+x-refined-from:
+- charitysense-com-openapi-original.json
+- charitysense-com-openapi.yml
