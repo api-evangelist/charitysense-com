@@ -1,12 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Charitysense Com Discovery API
+  title: CharitySense Discovery API
   version: 3.0.0
+  description: Canonical CharitySense API for nonprofit research compiled from the canonical research overlay.
   contact:
     name: CharitySense
     email: mazhar@charitysense.com
     url: https://data.charitysense.com/contact
-  description: 'Operations tagged Discovery across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://data.charitysense.com
 security: []
@@ -32,8 +32,6 @@ paths:
                 $ref: '#/components/schemas/TopLists'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/search:
     get:
       tags:
@@ -148,8 +146,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/funders/for-cohort:
     get:
       tags:
@@ -194,8 +190,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/discovery:
     get:
       tags:
@@ -234,8 +228,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/diligence-summary:
     get:
       tags:
@@ -264,10 +256,154 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
 components:
   schemas:
+    DiscoveryResults:
+      type: object
+      required:
+      - Intent
+      - PolicyVersion
+      - Weights
+      - Organizations
+      properties:
+        Intent: {}
+        PolicyVersion:
+          type: string
+        Weights:
+          type: object
+          additionalProperties:
+            type: number
+        Organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    Funder:
+      type: object
+      required:
+      - EIN
+      properties:
+        EIN:
+          type: integer
+        Name:
+          type: string
+        Location:
+          type: string
+        PrimaryForm:
+          type: string
+        EntityType:
+          type: string
+        ProfileAvailable:
+          type: boolean
+          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
+        Amount:
+          type: number
+        GrantCount:
+          type: integer
+        RecipientCount:
+          type: integer
+          description: How many of the requested organizations this funder reaches. Cohort responses only.
+        EarliestYear:
+          type: integer
+        LatestYear:
+          type: integer
+        Categories:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    DiligenceSummary:
+      type: object
+      required:
+      - Organizations
+      properties:
+        Organizations:
+          type: array
+          items:
+            type: object
+            required:
+            - EIN
+            properties:
+              EIN:
+                type: integer
+              Name:
+                type: string
+              Location:
+                type: string
+              PrimaryForm:
+                type: string
+              Revenue:
+                type: number
+              Assets:
+                type: number
+              LatestYear:
+                type: integer
+              Rating:
+                type: object
+                required:
+                - Score
+                - State
+                properties:
+                  Score:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  State:
+                    type: string
+                additionalProperties: false
+              Readiness:
+                type: object
+                properties:
+                  Label:
+                    type: string
+                    enum:
+                    - Clear
+                    - Needs review
+                    - Compliance issue flagged
+                  Tone:
+                    type: string
+                    enum:
+                    - Good
+                    - Caution
+                    - Concern
+                  ReviewReasons:
+                    type: array
+                    items:
+                      type: string
+                  RestrictionStatus:
+                    type: string
+                    enum:
+                    - Confirmed
+                    - Review
+                    - Clear
+                  RestrictionConfirmed:
+                    type: integer
+                  RestrictionReview:
+                    type: integer
+                additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
     SearchHit:
       type: object
       required:
@@ -451,47 +587,6 @@ components:
                   additionalProperties: false
             additionalProperties: false
       additionalProperties: false
-    DiscoveryResults:
-      type: object
-      required:
-      - Intent
-      - PolicyVersion
-      - Weights
-      - Organizations
-      properties:
-        Intent: {}
-        PolicyVersion:
-          type: string
-        Weights:
-          type: object
-          additionalProperties:
-            type: number
-        Organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchHit'
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
     SearchResults:
       type: object
       required:
@@ -535,111 +630,6 @@ components:
           type: object
           additionalProperties: true
       additionalProperties: false
-    Funder:
-      type: object
-      required:
-      - EIN
-      properties:
-        EIN:
-          type: integer
-        Name:
-          type: string
-        Location:
-          type: string
-        PrimaryForm:
-          type: string
-        EntityType:
-          type: string
-        ProfileAvailable:
-          type: boolean
-          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
-        Amount:
-          type: number
-        GrantCount:
-          type: integer
-        RecipientCount:
-          type: integer
-          description: How many of the requested organizations this funder reaches. Cohort responses only.
-        EarliestYear:
-          type: integer
-        LatestYear:
-          type: integer
-        Categories:
-          type: array
-          items:
-            type: string
-      additionalProperties: false
-    DiligenceSummary:
-      type: object
-      required:
-      - Organizations
-      properties:
-        Organizations:
-          type: array
-          items:
-            type: object
-            required:
-            - EIN
-            properties:
-              EIN:
-                type: integer
-              Name:
-                type: string
-              Location:
-                type: string
-              PrimaryForm:
-                type: string
-              Revenue:
-                type: number
-              Assets:
-                type: number
-              LatestYear:
-                type: integer
-              Rating:
-                type: object
-                required:
-                - Score
-                - State
-                properties:
-                  Score:
-                    type: integer
-                    minimum: 0
-                    maximum: 100
-                  State:
-                    type: string
-                additionalProperties: false
-              Readiness:
-                type: object
-                properties:
-                  Label:
-                    type: string
-                    enum:
-                    - Clear
-                    - Needs review
-                    - Compliance issue flagged
-                  Tone:
-                    type: string
-                    enum:
-                    - Good
-                    - Caution
-                    - Concern
-                  ReviewReasons:
-                    type: array
-                    items:
-                      type: string
-                  RestrictionStatus:
-                    type: string
-                    enum:
-                    - Confirmed
-                    - Review
-                    - Clear
-                  RestrictionConfirmed:
-                    type: integer
-                  RestrictionReview:
-                    type: integer
-                additionalProperties: false
-            additionalProperties: false
-      additionalProperties: false
   parameters:
     Ein:
       name: ein
@@ -680,6 +670,3 @@ components:
 externalDocs:
   description: Agent integration guide and recommended workflow.
   url: https://data.charitysense.com/agents
-x-refined-from:
-- charitysense-com-openapi-original.json
-- charitysense-com-openapi.yml

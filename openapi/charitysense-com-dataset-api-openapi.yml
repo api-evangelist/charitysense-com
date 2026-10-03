@@ -1,12 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Charitysense Com Dataset API
+  title: CharitySense Dataset API
   version: 3.0.0
+  description: Canonical CharitySense API for nonprofit research compiled from the canonical research overlay.
   contact:
     name: CharitySense
     email: mazhar@charitysense.com
     url: https://data.charitysense.com/contact
-  description: 'Operations tagged Dataset across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://data.charitysense.com
 security: []
@@ -29,8 +29,6 @@ paths:
                 $ref: '#/components/schemas/Health'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/stats:
     get:
       tags:
@@ -49,8 +47,6 @@ paths:
                 $ref: '#/components/schemas/Stats'
         '503':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
 components:
   schemas:
     Health:
@@ -69,27 +65,6 @@ components:
         CompiledAt: {}
         Documents:
           type: integer
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
       additionalProperties: false
     Stats:
       type: object
@@ -122,57 +97,6 @@ components:
         ComputedAt:
           type: string
           format: date-time
-      additionalProperties: false
-    SectorOverview:
-      type: object
-      required:
-      - Form
-      - OrganizationCount
-      - FilingCount
-      - LatestCompleteYear
-      - Years
-      properties:
-        Form:
-          type: string
-          const: '990'
-        OrganizationCount:
-          type: integer
-        FilingCount:
-          type: integer
-        LatestCompleteYear:
-          type: integer
-        Years:
-          type: array
-          items:
-            $ref: '#/components/schemas/SectorYear'
-      additionalProperties: false
-    SectorComposition:
-      type: object
-      required:
-      - RegistryOrganizations
-      - Groups
-      properties:
-        RegistryOrganizations:
-          type: integer
-        RegistryUpdatedAt:
-          type: string
-          format: date-time
-        Groups:
-          type: array
-          items:
-            type: object
-            required:
-            - Key
-            - Label
-            - Organizations
-            properties:
-              Key:
-                type: string
-              Label:
-                type: string
-              Organizations:
-                type: integer
-            additionalProperties: false
       additionalProperties: false
     SectorYear:
       type: object
@@ -234,6 +158,78 @@ components:
           additionalProperties:
             type: integer
       additionalProperties: false
+    SectorOverview:
+      type: object
+      required:
+      - Form
+      - OrganizationCount
+      - FilingCount
+      - LatestCompleteYear
+      - Years
+      properties:
+        Form:
+          type: string
+          const: '990'
+        OrganizationCount:
+          type: integer
+        FilingCount:
+          type: integer
+        LatestCompleteYear:
+          type: integer
+        Years:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectorYear'
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    SectorComposition:
+      type: object
+      required:
+      - RegistryOrganizations
+      - Groups
+      properties:
+        RegistryOrganizations:
+          type: integer
+        RegistryUpdatedAt:
+          type: string
+          format: date-time
+        Groups:
+          type: array
+          items:
+            type: object
+            required:
+            - Key
+            - Label
+            - Organizations
+            properties:
+              Key:
+                type: string
+              Label:
+                type: string
+              Organizations:
+                type: integer
+            additionalProperties: false
+      additionalProperties: false
   responses:
     ErrorResponse:
       description: Request error in detail, with a stable ErrorCode when available.
@@ -252,6 +248,3 @@ components:
 externalDocs:
   description: Agent integration guide and recommended workflow.
   url: https://data.charitysense.com/agents
-x-refined-from:
-- charitysense-com-openapi-original.json
-- charitysense-com-openapi.yml

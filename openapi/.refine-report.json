@@ -1,8 +1,7 @@
 {
   "provider": "charitysense-com",
   "sources": [
-    "_original/charitysense-com-openapi-original.json",
-    "charitysense-com-openapi.yml"
+    "_original/charitysense-com-openapi-original.json"
   ],
   "outputs": [
     "charitysense-com-assistant-api-openapi.yml",
@@ -11,24 +10,22 @@
     "charitysense-com-profiles-api-openapi.yml",
     "charitysense-com-usage-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/charitysense-com-openapi.yml"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
-    "1 archived document(s) dropped as subsets of other archived documents",
+    "2 archived document(s) dropped as subsets of other archived documents",
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "charitysense-com-openapi-original.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "charitysense-com-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "tag 'Assistant' spans 2 source specs (charitysense-com-openapi-original.json, charitysense-com-openapi.yml): per-path servers applied",
-    "tag 'Dataset' spans 2 source specs (charitysense-com-openapi-original.json, charitysense-com-openapi.yml): per-path servers applied",
-    "tag 'Discovery' spans 2 source specs (charitysense-com-openapi-original.json, charitysense-com-openapi.yml): per-path servers applied",
-    "tag 'Profiles' spans 2 source specs (charitysense-com-openapi-original.json, charitysense-com-openapi.yml): per-path servers applied",
-    "tag 'Usage' spans 2 source specs (charitysense-com-openapi-original.json, charitysense-com-openapi.yml): per-path servers applied",
-    "apis.yml register: written (+5 apis, 5 total)"
+    "apis.yml register: already-registered"
   ],
   "skipped": [
-    "_original/charitysense-com-openapi-original.yaml: archived document superseded by a larger archived document"
+    "_original/charitysense-com-openapi.yml: archived document superseded by a larger archived document",
+    "_original/charitysense-com-openapi-original.yaml: archived document superseded by a larger archived document",
+    "charitysense-com-assistant-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "charitysense-com-dataset-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "charitysense-com-discovery-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "charitysense-com-profiles-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "charitysense-com-usage-api-openapi.yml: previously refined output, superseded by openapi/_original/"
   ]
 }

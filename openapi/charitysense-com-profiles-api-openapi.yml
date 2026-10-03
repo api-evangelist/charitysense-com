@@ -1,12 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Charitysense Com Profiles API
+  title: CharitySense Profiles API
   version: 3.0.0
+  description: Canonical CharitySense API for nonprofit research compiled from the canonical research overlay.
   contact:
     name: CharitySense
     email: mazhar@charitysense.com
     url: https://data.charitysense.com/contact
-  description: 'Operations tagged Profiles across 2 of this provider''s published API definitions: charitysense-com-openapi-original.json, charitysense-com-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://data.charitysense.com
 security: []
@@ -41,8 +41,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/brand-icon:
     get:
       tags:
@@ -74,8 +72,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/sections/{SectionId}:
     get:
       tags:
@@ -110,8 +106,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/filings:
     get:
       tags:
@@ -142,8 +136,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '422':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/money-network:
     get:
       tags:
@@ -192,8 +184,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/awards:
     get:
       tags:
@@ -226,8 +216,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/subawards:
     get:
       tags:
@@ -260,8 +248,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/grantees:
     get:
       tags:
@@ -307,8 +293,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
   /api/v2/charity/{ein}/funders:
     get:
       tags:
@@ -352,50 +336,8 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-    servers:
-    - url: https://data.charitysense.com
 components:
   schemas:
-    CharitySection:
-      type: object
-      required:
-      - Section
-      - Data
-      - EvidenceRefs
-      properties:
-        Section:
-          $ref: '#/components/schemas/SectionManifestItem'
-        Data:
-          description: Canonical section data. MoneyFlow responses conform to MoneyFlowData.
-          anyOf:
-          - $ref: '#/components/schemas/MoneyFlowData'
-          - $ref: '#/components/schemas/RelatedOrganizationsData'
-          - type: object
-            additionalProperties: true
-          - type: array
-            items: {}
-        EvidenceRefs:
-          type: array
-          items:
-            $ref: '#/components/schemas/EvidenceRef'
-        ScheduleIndex:
-          type: array
-          description: Stable lightweight index for a Schedules response; complete indexed schedules remain in paged Data.
-          items:
-            $ref: '#/components/schemas/ScheduleIndexItem'
-        NextCursor:
-          type: string
-      additionalProperties: false
-    RelatedOrganizationsData:
-      type: object
-      required:
-      - Relationships
-      properties:
-        Relationships:
-          type: array
-          items:
-            $ref: '#/components/schemas/RelationshipItem'
-      additionalProperties: false
     MoneyFlowData:
       type: object
       required:
@@ -419,26 +361,15 @@ components:
         FinancialTrend:
           $ref: '#/components/schemas/FinancialTrend'
       additionalProperties: false
-    GranteeList:
+    RelatedOrganizationsData:
       type: object
       required:
-      - EIN
-      - Grantees
+      - Relationships
       properties:
-        EIN:
-          type: integer
-        Grantees:
+        Relationships:
           type: array
           items:
-            $ref: '#/components/schemas/Funder'
-        GranteeCount:
-          type: integer
-          description: Distinct counterparties across the whole match, not just the returned page.
-        Truncated:
-          type: boolean
-          description: True when Limit held back some of them.
-        TotalAmount:
-          type: number
+            $ref: '#/components/schemas/RelationshipItem'
       additionalProperties: false
     AwardList:
       type: object
@@ -482,51 +413,182 @@ components:
           items:
             type: string
       additionalProperties: false
-    FunderList:
+    OperatingModelClassification:
+      type: object
+      required:
+      - Key
+      - Label
+      - Summary
+      - EvidenceRefs
+      properties:
+        Key:
+          type: string
+        Label:
+          type: string
+        PrimaryShare:
+          type: number
+        Summary:
+          type: string
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    EvidenceRef:
+      type: object
+      required:
+      - Ref
+      properties:
+        Collection:
+          type: string
+        Form:
+          type: string
+        TaxYear:
+          type: integer
+        Ref:
+          type: string
+        SourcePath:
+          type: string
+        SourceDocument:
+          type: string
+        Citation:
+          type: string
+      additionalProperties: true
+    RelationshipItem:
+      type: object
+      required:
+      - Organization
+      - Roles
+      - RelationshipType
+      - Confidences
+      - Evidence
+      properties:
+        Organization:
+          type: object
+          additionalProperties: true
+        Roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Source
+            - Target
+        RelationshipType:
+          type: string
+        Confidences:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Authoritative
+            - Strong
+        Evidence:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    Funder:
       type: object
       required:
       - EIN
-      - Funders
       properties:
         EIN:
           type: integer
-        Funders:
+        Name:
+          type: string
+        Location:
+          type: string
+        PrimaryForm:
+          type: string
+        EntityType:
+          type: string
+        ProfileAvailable:
+          type: boolean
+          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
+        Amount:
+          type: number
+        GrantCount:
+          type: integer
+        RecipientCount:
+          type: integer
+          description: How many of the requested organizations this funder reaches. Cohort responses only.
+        EarliestYear:
+          type: integer
+        LatestYear:
+          type: integer
+        Categories:
           type: array
           items:
-            $ref: '#/components/schemas/Funder'
-        FunderCount:
-          type: integer
-          description: Distinct counterparties across the whole match, not just the returned page.
-        Truncated:
-          type: boolean
-          description: True when Limit held back some of them.
-        TotalAmount:
-          type: number
+            type: string
       additionalProperties: false
-    FinancialTrend:
+    OperatingModel:
+      type: object
+      description: Display operating model sourced from the selected full-return context when available.
+      required:
+      - Form
+      - Resource
+      - Delivery
+      properties:
+        Form:
+          type: string
+          enum:
+          - '990'
+          - 990EZ
+          - 990PF
+        TaxYear:
+          type: integer
+        Resource:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Delivery:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OperatingModelModifier'
+      additionalProperties: false
+    MoneyNetwork:
       type: object
       required:
-      - Revenue
-      - Expense
-      - Assets
-      - Liabilities
+      - Scope
       properties:
-        Revenue:
+        Scope:
+          type: string
+          enum:
+          - Latest
+        Edges:
           type: array
           items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Expense:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Assets:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Liabilities:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
+            type: object
+            additionalProperties: true
+        NextCursor:
+          type: string
       additionalProperties: false
     CharityPage:
       type: object
@@ -737,44 +799,39 @@ components:
         CompiledAt: {}
         SchemaVersion: {}
       additionalProperties: false
-    RelationshipItem:
+    GranteeList:
       type: object
       required:
-      - Organization
-      - Roles
-      - RelationshipType
-      - Confidences
-      - Evidence
+      - EIN
+      - Grantees
       properties:
-        Organization:
-          type: object
-          additionalProperties: true
-        Roles:
+        EIN:
+          type: integer
+        Grantees:
           type: array
-          minItems: 1
-          uniqueItems: true
           items:
-            type: string
-            enum:
-            - Source
-            - Target
-        RelationshipType:
+            $ref: '#/components/schemas/Funder'
+        GranteeCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    FinancialTrendPoint:
+      type: object
+      required:
+      - Year
+      properties:
+        Year:
+          type: integer
+        Value:
+          type: number
+        EvidenceRef:
           type: string
-        Confidences:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            type: string
-            enum:
-            - Authoritative
-            - Strong
-        Evidence:
-          type: array
-          minItems: 1
-          items:
-            type: object
-            additionalProperties: true
+          description: Exact Forms.<Form>.Latest/Filings[n] canonical value reference. Omitted for a year gap.
       additionalProperties: false
     ScheduleIndexItem:
       type: object
@@ -787,26 +844,56 @@ components:
         EvidenceRef:
           type: string
       additionalProperties: false
-    OperatingModelClassification:
+    FunderList:
       type: object
       required:
-      - Key
-      - Label
-      - Summary
+      - EIN
+      - Funders
+      properties:
+        EIN:
+          type: integer
+        Funders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        FunderCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    CharitySection:
+      type: object
+      required:
+      - Section
+      - Data
       - EvidenceRefs
       properties:
-        Key:
-          type: string
-        Label:
-          type: string
-        PrimaryShare:
-          type: number
-        Summary:
-          type: string
+        Section:
+          $ref: '#/components/schemas/SectionManifestItem'
+        Data:
+          description: Canonical section data. MoneyFlow responses conform to MoneyFlowData.
+          anyOf:
+          - $ref: '#/components/schemas/MoneyFlowData'
+          - $ref: '#/components/schemas/RelatedOrganizationsData'
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
         EvidenceRefs:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/EvidenceRef'
+        ScheduleIndex:
+          type: array
+          description: Stable lightweight index for a Schedules response; complete indexed schedules remain in paged Data.
+          items:
+            $ref: '#/components/schemas/ScheduleIndexItem'
+        NextCursor:
+          type: string
       additionalProperties: false
     SubawardList:
       type: object
@@ -830,31 +917,6 @@ components:
           type: boolean
         NextCursor:
           type: string
-      additionalProperties: false
-    OperatingModel:
-      type: object
-      description: Display operating model sourced from the selected full-return context when available.
-      required:
-      - Form
-      - Resource
-      - Delivery
-      properties:
-        Form:
-          type: string
-          enum:
-          - '990'
-          - 990EZ
-          - 990PF
-        TaxYear:
-          type: integer
-        Resource:
-          $ref: '#/components/schemas/OperatingModelClassification'
-        Delivery:
-          $ref: '#/components/schemas/OperatingModelClassification'
-        Modifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/OperatingModelModifier'
       additionalProperties: false
     SectionManifestItem:
       type: object
@@ -907,73 +969,6 @@ components:
               type: number
           additionalProperties: false
       additionalProperties: true
-    EvidenceRef:
-      type: object
-      required:
-      - Ref
-      properties:
-        Collection:
-          type: string
-        Form:
-          type: string
-        TaxYear:
-          type: integer
-        Ref:
-          type: string
-        SourcePath:
-          type: string
-        SourceDocument:
-          type: string
-        Citation:
-          type: string
-      additionalProperties: true
-    FinancialTrendPoint:
-      type: object
-      required:
-      - Year
-      properties:
-        Year:
-          type: integer
-        Value:
-          type: number
-        EvidenceRef:
-          type: string
-          description: Exact Forms.<Form>.Latest/Filings[n] canonical value reference. Omitted for a year gap.
-      additionalProperties: false
-    Funder:
-      type: object
-      required:
-      - EIN
-      properties:
-        EIN:
-          type: integer
-        Name:
-          type: string
-        Location:
-          type: string
-        PrimaryForm:
-          type: string
-        EntityType:
-          type: string
-        ProfileAvailable:
-          type: boolean
-          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
-        Amount:
-          type: number
-        GrantCount:
-          type: integer
-        RecipientCount:
-          type: integer
-          description: How many of the requested organizations this funder reaches. Cohort responses only.
-        EarliestYear:
-          type: integer
-        LatestYear:
-          type: integer
-        Categories:
-          type: array
-          items:
-            type: string
-      additionalProperties: false
     CharityFilings:
       type: object
       required:
@@ -998,52 +993,41 @@ components:
         NextCursor:
           type: string
       additionalProperties: false
-    Error:
+    FinancialTrend:
       type: object
       required:
-      - detail
+      - Revenue
+      - Expense
+      - Assets
+      - Liabilities
       properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
-    MoneyNetwork:
-      type: object
-      required:
-      - Scope
-      properties:
-        Scope:
-          type: string
-          enum:
-          - Latest
-        Edges:
+        Revenue:
           type: array
           items:
-            type: object
-            additionalProperties: true
-        NextCursor:
-          type: string
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Expense:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
       additionalProperties: false
-  responses:
-    ErrorResponse:
-      description: Request error in detail, with a stable ErrorCode when available.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
+    Ein:
+      name: ein
+      in: path
+      required: true
+      description: Nine-digit Employer Identification Number.
+      schema:
+        type: integer
+        minimum: 10000000
+        maximum: 999999999
     Form:
       name: Form
       in: query
@@ -1056,35 +1040,12 @@ components:
         - 990N
         - 990PF
         - 990T
-    EvidenceRef:
-      name: EvidenceRef
-      in: query
-      description: 'Exact EvidenceRef returned by a page or section response. Use it when retrieving an evidence-targeted historical filing or schedule row.
-
-        '
-      schema:
-        type: string
     OpaqueCursor:
       name: Cursor
       in: query
       description: Opaque continuation value returned by NextCursor.
       schema:
         type: string
-    Ein:
-      name: ein
-      in: path
-      required: true
-      description: Nine-digit Employer Identification Number.
-      schema:
-        type: integer
-        minimum: 10000000
-        maximum: 999999999
-    Year:
-      name: Year
-      in: query
-      description: Select a filing year. Defaults to the latest filing in the selected form context.
-      schema:
-        type: integer
     SectionLimit:
       name: Limit
       in: query
@@ -1093,6 +1054,27 @@ components:
         minimum: 1
         maximum: 200
         default: 50
+    Year:
+      name: Year
+      in: query
+      description: Select a filing year. Defaults to the latest filing in the selected form context.
+      schema:
+        type: integer
+    EvidenceRef:
+      name: EvidenceRef
+      in: query
+      description: 'Exact EvidenceRef returned by a page or section response. Use it when retrieving an evidence-targeted historical filing or schedule row.
+
+        '
+      schema:
+        type: string
+  responses:
+    ErrorResponse:
+      description: Request error in detail, with a stable ErrorCode when available.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   securitySchemes:
     BearerAuth:
       type: http
@@ -1104,6 +1086,3 @@ components:
 externalDocs:
   description: Agent integration guide and recommended workflow.
   url: https://data.charitysense.com/agents
-x-refined-from:
-- charitysense-com-openapi-original.json
-- charitysense-com-openapi.yml
