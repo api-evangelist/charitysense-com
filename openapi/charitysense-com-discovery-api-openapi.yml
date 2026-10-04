@@ -258,80 +258,26 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
-    DiscoveryResults:
+    CohortFunderList:
       type: object
       required:
-      - Intent
-      - PolicyVersion
-      - Weights
-      - Organizations
+      - CohortEINs
+      - Funders
       properties:
-        Intent: {}
-        PolicyVersion:
-          type: string
-        Weights:
-          type: object
-          additionalProperties:
-            type: number
-        Organizations:
+        CohortEINs:
           type: array
           items:
-            $ref: '#/components/schemas/SearchHit'
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
-    Funder:
-      type: object
-      required:
-      - EIN
-      properties:
-        EIN:
+            type: integer
+        CohortSize:
           type: integer
-        Name:
-          type: string
-        Location:
-          type: string
-        PrimaryForm:
-          type: string
-        EntityType:
-          type: string
-        ProfileAvailable:
-          type: boolean
-          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
-        Amount:
+        Funders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        FunderCount:
+          type: integer
+        TotalAmount:
           type: number
-        GrantCount:
-          type: integer
-        RecipientCount:
-          type: integer
-          description: How many of the requested organizations this funder reaches. Cohort responses only.
-        EarliestYear:
-          type: integer
-        LatestYear:
-          type: integer
-        Categories:
-          type: array
-          items:
-            type: string
       additionalProperties: false
     DiligenceSummary:
       type: object
@@ -403,6 +349,27 @@ components:
                     type: integer
                 additionalProperties: false
             additionalProperties: false
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
       additionalProperties: false
     SearchHit:
       type: object
@@ -502,26 +469,102 @@ components:
                 additionalProperties: false
           additionalProperties: false
       additionalProperties: false
-    CohortFunderList:
+    DiscoveryResults:
       type: object
       required:
-      - CohortEINs
-      - Funders
+      - Intent
+      - PolicyVersion
+      - Weights
+      - Organizations
       properties:
-        CohortEINs:
+        Intent: {}
+        PolicyVersion:
+          type: string
+        Weights:
+          type: object
+          additionalProperties:
+            type: number
+        Organizations:
           type: array
           items:
-            type: integer
-        CohortSize:
-          type: integer
-        Funders:
+            $ref: '#/components/schemas/SearchHit'
+      additionalProperties: false
+    SearchResults:
+      type: object
+      required:
+      - Query
+      - Mode
+      - Hits
+      - Found
+      - Page
+      properties:
+        Query:
+          type: string
+        Mode:
+          type: string
+          enum:
+          - Identity
+          - Discovery
+        Hits:
           type: array
           items:
-            $ref: '#/components/schemas/Funder'
-        FunderCount:
+            allOf:
+            - $ref: '#/components/schemas/SearchHit'
+            - required:
+              - Match
+        Found:
           type: integer
-        TotalAmount:
+        Page:
+          type: integer
+        QueryVersion:
+          type: string
+        Facets:
+          type: object
+          description: Facet buckets with counts, present only when Facets=true.
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+        NextCursor:
+          type: string
+        Resolution:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    Funder:
+      type: object
+      required:
+      - EIN
+      properties:
+        EIN:
+          type: integer
+        Name:
+          type: string
+        Location:
+          type: string
+        PrimaryForm:
+          type: string
+        EntityType:
+          type: string
+        ProfileAvailable:
+          type: boolean
+          description: Whether a profile exists to open, read from the overlay rather than the filing requirement.
+        Amount:
           type: number
+        GrantCount:
+          type: integer
+        RecipientCount:
+          type: integer
+          description: How many of the requested organizations this funder reaches. Cohort responses only.
+        EarliestYear:
+          type: integer
+        LatestYear:
+          type: integer
+        Categories:
+          type: array
+          items:
+            type: string
       additionalProperties: false
     TopLists:
       type: object
@@ -587,59 +630,7 @@ components:
                   additionalProperties: false
             additionalProperties: false
       additionalProperties: false
-    SearchResults:
-      type: object
-      required:
-      - Query
-      - Mode
-      - Hits
-      - Found
-      - Page
-      properties:
-        Query:
-          type: string
-        Mode:
-          type: string
-          enum:
-          - Identity
-          - Discovery
-        Hits:
-          type: array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/SearchHit'
-            - required:
-              - Match
-        Found:
-          type: integer
-        Page:
-          type: integer
-        QueryVersion:
-          type: string
-        Facets:
-          type: object
-          description: Facet buckets with counts, present only when Facets=true.
-          additionalProperties:
-            type: array
-            items:
-              type: object
-              additionalProperties: true
-        NextCursor:
-          type: string
-        Resolution:
-          type: object
-          additionalProperties: true
-      additionalProperties: false
   parameters:
-    Ein:
-      name: ein
-      in: path
-      required: true
-      description: Nine-digit Employer Identification Number.
-      schema:
-        type: integer
-        minimum: 10000000
-        maximum: 999999999
     Form:
       name: Form
       in: query
@@ -652,6 +643,15 @@ components:
         - 990N
         - 990PF
         - 990T
+    Ein:
+      name: ein
+      in: path
+      required: true
+      description: Nine-digit Employer Identification Number.
+      schema:
+        type: integer
+        minimum: 10000000
+        maximum: 999999999
   responses:
     ErrorResponse:
       description: Request error in detail, with a stable ErrorCode when available.

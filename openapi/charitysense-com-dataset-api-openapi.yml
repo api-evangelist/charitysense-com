@@ -49,23 +49,6 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
-    Health:
-      type: object
-      required:
-      - Status
-      - SchemaVersion
-      - Documents
-      properties:
-        Status:
-          type: string
-          const: Healthy
-        SchemaVersion:
-          type: integer
-          const: 2
-        CompiledAt: {}
-        Documents:
-          type: integer
-      additionalProperties: false
     Stats:
       type: object
       required:
@@ -158,6 +141,51 @@ components:
           additionalProperties:
             type: integer
       additionalProperties: false
+    Health:
+      type: object
+      required:
+      - Status
+      - SchemaVersion
+      - Documents
+      properties:
+        Status:
+          type: string
+          const: Healthy
+        SchemaVersion:
+          type: integer
+          const: 2
+        CompiledAt: {}
+        Documents:
+          type: integer
+      additionalProperties: false
+    SectorComposition:
+      type: object
+      required:
+      - RegistryOrganizations
+      - Groups
+      properties:
+        RegistryOrganizations:
+          type: integer
+        RegistryUpdatedAt:
+          type: string
+          format: date-time
+        Groups:
+          type: array
+          items:
+            type: object
+            required:
+            - Key
+            - Label
+            - Organizations
+            properties:
+              Key:
+                type: string
+              Label:
+                type: string
+              Organizations:
+                type: integer
+            additionalProperties: false
+      additionalProperties: false
     SectorOverview:
       type: object
       required:
@@ -201,34 +229,6 @@ components:
             items:
               type: object
               additionalProperties: true
-      additionalProperties: false
-    SectorComposition:
-      type: object
-      required:
-      - RegistryOrganizations
-      - Groups
-      properties:
-        RegistryOrganizations:
-          type: integer
-        RegistryUpdatedAt:
-          type: string
-          format: date-time
-        Groups:
-          type: array
-          items:
-            type: object
-            required:
-            - Key
-            - Label
-            - Organizations
-            properties:
-              Key:
-                type: string
-              Label:
-                type: string
-              Organizations:
-                type: integer
-            additionalProperties: false
       additionalProperties: false
   responses:
     ErrorResponse:

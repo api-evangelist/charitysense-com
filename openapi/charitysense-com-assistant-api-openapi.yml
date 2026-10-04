@@ -140,6 +140,60 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
+    AssistantChatRequest:
+      type: object
+      required:
+      - Message
+      properties:
+        Message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        History:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required:
+            - Role
+            - Content
+            properties:
+              Role:
+                type: string
+                enum:
+                - user
+                - assistant
+              Content:
+                type: string
+                maxLength: 2000
+            additionalProperties: false
+        Context:
+          type: object
+          properties:
+            Path:
+              type: string
+            EIN:
+              type: string
+            CharityName:
+              type: string
+            SearchQuery:
+              type: string
+          additionalProperties: false
+      additionalProperties: false
+    QuestionResult:
+      type: object
+      required:
+      - RequestID
+      - Stored
+      - Notified
+      properties:
+        RequestID:
+          type: string
+        Stored:
+          type: boolean
+        Notified:
+          type: boolean
+      additionalProperties: false
     FeedbackResult:
       type: object
       required:
@@ -153,6 +207,24 @@ components:
           type: boolean
         Notified:
           type: boolean
+      additionalProperties: false
+    CharityQuestionRequest:
+      type: object
+      required:
+      - EIN
+      - Question
+      - Email
+      properties:
+        EIN:
+          oneOf:
+          - type: integer
+          - type: string
+        Question:
+          type: string
+          maxLength: 4000
+        Email:
+          type: string
+          format: email
       additionalProperties: false
     Error:
       type: object
@@ -213,78 +285,6 @@ components:
           items:
             type: string
         SearchRecoveryEnabled:
-          type: boolean
-      additionalProperties: false
-    AssistantChatRequest:
-      type: object
-      required:
-      - Message
-      properties:
-        Message:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        History:
-          type: array
-          maxItems: 20
-          items:
-            type: object
-            required:
-            - Role
-            - Content
-            properties:
-              Role:
-                type: string
-                enum:
-                - user
-                - assistant
-              Content:
-                type: string
-                maxLength: 2000
-            additionalProperties: false
-        Context:
-          type: object
-          properties:
-            Path:
-              type: string
-            EIN:
-              type: string
-            CharityName:
-              type: string
-            SearchQuery:
-              type: string
-          additionalProperties: false
-      additionalProperties: false
-    CharityQuestionRequest:
-      type: object
-      required:
-      - EIN
-      - Question
-      - Email
-      properties:
-        EIN:
-          oneOf:
-          - type: integer
-          - type: string
-        Question:
-          type: string
-          maxLength: 4000
-        Email:
-          type: string
-          format: email
-      additionalProperties: false
-    QuestionResult:
-      type: object
-      required:
-      - RequestID
-      - Stored
-      - Notified
-      properties:
-        RequestID:
-          type: string
-        Stored:
-          type: boolean
-        Notified:
           type: boolean
       additionalProperties: false
   responses:
