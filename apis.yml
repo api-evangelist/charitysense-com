@@ -90,6 +90,8 @@ apis:
   humanURL: https://data.charitysense.com/developers
   baseURL: https://data.charitysense.com
   tags:
+  - Datasets
+  tags_raw:
   - Dataset
   properties:
   - type: OpenAPI
