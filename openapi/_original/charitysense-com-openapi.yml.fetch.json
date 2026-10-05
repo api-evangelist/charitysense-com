@@ -1,0 +1,12 @@
+{
+ "url": "https://data.charitysense.com/openapi.yaml",
+ "requested_url": "https://data.charitysense.com/openapi.yaml",
+ "status": 200,
+ "content_type": "application/yaml",
+ "bytes": 57484,
+ "sha256": "1e446a9e89b01d48083b955352e9807bef5ef0efb3ba0c8a9b9a432dc9beda76",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "equivalent",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the provider's current document describes the same operations (Jaccard 1.0), but the bytes differ, so the archive is an earlier or reformatted copy."
+}
