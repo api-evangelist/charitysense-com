@@ -220,6 +220,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Pricing
+  url: https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md
 - type: AgenticAccess
   url: agentic-access/charitysense-com-agentic-access.yml
 - type: DomainSecurity
