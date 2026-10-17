@@ -338,6 +338,23 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   parameters:
+    SectionLimit:
+      name: Limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+    Ein:
+      name: ein
+      in: path
+      required: true
+      description: Nine-digit Employer Identification Number.
+      schema:
+        type: integer
+        minimum: 10000000
+        maximum: 999999999
     Year:
       name: Year
       in: query
@@ -350,23 +367,6 @@ components:
       description: Opaque continuation value returned by NextCursor.
       schema:
         type: string
-    Ein:
-      name: ein
-      in: path
-      required: true
-      description: Nine-digit Employer Identification Number.
-      schema:
-        type: integer
-        minimum: 10000000
-        maximum: 999999999
-    SectionLimit:
-      name: Limit
-      in: query
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 200
-        default: 50
     EvidenceRef:
       name: EvidenceRef
       in: query
@@ -388,6 +388,167 @@ components:
         - 990PF
         - 990T
   schemas:
+    CharitySection:
+      type: object
+      required:
+      - Section
+      - Data
+      - EvidenceRefs
+      properties:
+        Section:
+          $ref: '#/components/schemas/SectionManifestItem'
+        Data:
+          description: Canonical section data. MoneyFlow responses conform to MoneyFlowData.
+          anyOf:
+          - $ref: '#/components/schemas/MoneyFlowData'
+          - $ref: '#/components/schemas/RelatedOrganizationsData'
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}
+        EvidenceRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        ScheduleIndex:
+          type: array
+          description: Stable lightweight index for a Schedules response; complete indexed schedules remain in paged Data.
+          items:
+            $ref: '#/components/schemas/ScheduleIndexItem'
+        NextCursor:
+          type: string
+      additionalProperties: false
+    MoneyNetwork:
+      type: object
+      required:
+      - Scope
+      properties:
+        Scope:
+          type: string
+          enum:
+          - Latest
+        Edges:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        NextCursor:
+          type: string
+      additionalProperties: false
+    SectionManifestItem:
+      type: object
+      required:
+      - Id
+      - Kind
+      - Title
+      - Summary
+      - SourceTags
+      properties:
+        Id:
+          type: string
+        Kind:
+          type: string
+          enum:
+          - Band
+          - Evidence
+        Title:
+          type: string
+        Summary:
+          type: string
+        SourceTags:
+          type: array
+          items:
+            type: string
+        Form:
+          type: string
+        Year:
+          type: integer
+        Ref:
+          type: string
+        Pageable:
+          type: boolean
+        Status:
+          type: object
+          required:
+          - Label
+          - Tone
+          properties:
+            Label:
+              type: string
+            Tone:
+              type: string
+              enum:
+              - Good
+              - Caution
+              - Concern
+              - Neutral
+            Score:
+              type: number
+          additionalProperties: false
+      additionalProperties: true
+    AwardList:
+      type: object
+      required:
+      - EIN
+      - Awards
+      properties:
+        EIN:
+          type: integer
+        Awards:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        AwardCount:
+          type: integer
+        AttributionWarnings:
+          type: integer
+          description: Awards on this page whose filed recipient name matches no known name for the organization. Awards are attributed through a UEI-to-EIN mapping derived from the Federal Audit Clearinghouse, and one bad row there can attach another entity's award history to an unrelated EIN.
+        NextCursor:
+          type: string
+      additionalProperties: false
+    OperatingModelModifier:
+      type: object
+      required:
+      - Key
+      - Label
+      - Summary
+      - EvidenceRefs
+      properties:
+        Key:
+          type: string
+        Label:
+          type: string
+        Value:
+          type: number
+        Summary:
+          type: string
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    OperatingModelClassification:
+      type: object
+      required:
+      - Key
+      - Label
+      - Summary
+      - EvidenceRefs
+      properties:
+        Key:
+          type: string
+        Label:
+          type: string
+        PrimaryShare:
+          type: number
+        Summary:
+          type: string
+        EvidenceRefs:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
     Funder:
       type: object
       required:
@@ -422,101 +583,26 @@ components:
           items:
             type: string
       additionalProperties: false
-    ScheduleIndexItem:
+    Error:
       type: object
       required:
-      - Name
-      - EvidenceRef
+      - detail
       properties:
-        Name:
-          type: string
-        EvidenceRef:
-          type: string
-      additionalProperties: false
-    FinancialTrend:
-      type: object
-      required:
-      - Revenue
-      - Expense
-      - Assets
-      - Liabilities
-      properties:
-        Revenue:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Expense:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Assets:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-        Liabilities:
-          type: array
-          items:
-            $ref: '#/components/schemas/FinancialTrendPoint'
-      additionalProperties: false
-    RelationshipItem:
-      type: object
-      required:
-      - Organization
-      - Roles
-      - RelationshipType
-      - Confidences
-      - Evidence
-      properties:
-        Organization:
-          type: object
-          additionalProperties: true
-        Roles:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            type: string
-            enum:
-            - Source
-            - Target
-        RelationshipType:
-          type: string
-        Confidences:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            type: string
-            enum:
-            - Authoritative
-            - Strong
-        Evidence:
-          type: array
-          minItems: 1
-          items:
-            type: object
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
             additionalProperties: true
-      additionalProperties: false
-    AwardList:
-      type: object
-      required:
-      - EIN
-      - Awards
-      properties:
-        EIN:
-          type: integer
-        Awards:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
-        AwardCount:
-          type: integer
-        AttributionWarnings:
-          type: integer
-          description: Awards on this page whose filed recipient name matches no known name for the organization. Awards are attributed through a UEI-to-EIN mapping derived from the Federal Audit Clearinghouse, and one bad row there can attach another entity's award history to an unrelated EIN.
-        NextCursor:
-          type: string
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
       additionalProperties: false
     MoneyFlowData:
       type: object
@@ -540,82 +626,6 @@ components:
           additionalProperties: true
         FinancialTrend:
           $ref: '#/components/schemas/FinancialTrend'
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
-    FunderList:
-      type: object
-      required:
-      - EIN
-      - Funders
-      properties:
-        EIN:
-          type: integer
-        Funders:
-          type: array
-          items:
-            $ref: '#/components/schemas/Funder'
-        FunderCount:
-          type: integer
-          description: Distinct counterparties across the whole match, not just the returned page.
-        Truncated:
-          type: boolean
-          description: True when Limit held back some of them.
-        TotalAmount:
-          type: number
-      additionalProperties: false
-    OperatingModelModifier:
-      type: object
-      required:
-      - Key
-      - Label
-      - Summary
-      - EvidenceRefs
-      properties:
-        Key:
-          type: string
-        Label:
-          type: string
-        Value:
-          type: number
-        Summary:
-          type: string
-        EvidenceRefs:
-          type: array
-          items:
-            type: string
-      additionalProperties: false
-    FinancialTrendPoint:
-      type: object
-      required:
-      - Year
-      properties:
-        Year:
-          type: integer
-        Value:
-          type: number
-        EvidenceRef:
-          type: string
-          description: Exact Forms.<Form>.Latest/Filings[n] canonical value reference. Omitted for a year gap.
       additionalProperties: false
     CharityPage:
       type: object
@@ -826,104 +836,16 @@ components:
         CompiledAt: {}
         SchemaVersion: {}
       additionalProperties: false
-    SectionManifestItem:
+    ScheduleIndexItem:
       type: object
       required:
-      - Id
-      - Kind
-      - Title
-      - Summary
-      - SourceTags
+      - Name
+      - EvidenceRef
       properties:
-        Id:
+        Name:
           type: string
-        Kind:
+        EvidenceRef:
           type: string
-          enum:
-          - Band
-          - Evidence
-        Title:
-          type: string
-        Summary:
-          type: string
-        SourceTags:
-          type: array
-          items:
-            type: string
-        Form:
-          type: string
-        Year:
-          type: integer
-        Ref:
-          type: string
-        Pageable:
-          type: boolean
-        Status:
-          type: object
-          required:
-          - Label
-          - Tone
-          properties:
-            Label:
-              type: string
-            Tone:
-              type: string
-              enum:
-              - Good
-              - Caution
-              - Concern
-              - Neutral
-            Score:
-              type: number
-          additionalProperties: false
-      additionalProperties: true
-    RelatedOrganizationsData:
-      type: object
-      required:
-      - Relationships
-      properties:
-        Relationships:
-          type: array
-          items:
-            $ref: '#/components/schemas/RelationshipItem'
-      additionalProperties: false
-    MoneyNetwork:
-      type: object
-      required:
-      - Scope
-      properties:
-        Scope:
-          type: string
-          enum:
-          - Latest
-        Edges:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
-        NextCursor:
-          type: string
-      additionalProperties: false
-    OperatingModelClassification:
-      type: object
-      required:
-      - Key
-      - Label
-      - Summary
-      - EvidenceRefs
-      properties:
-        Key:
-          type: string
-        Label:
-          type: string
-        PrimaryShare:
-          type: number
-        Summary:
-          type: string
-        EvidenceRefs:
-          type: array
-          items:
-            type: string
       additionalProperties: false
     SubawardList:
       type: object
@@ -948,50 +870,60 @@ components:
         NextCursor:
           type: string
       additionalProperties: false
-    EvidenceRef:
+    FinancialTrendPoint:
       type: object
       required:
-      - Ref
+      - Year
       properties:
-        Collection:
-          type: string
-        Form:
-          type: string
-        TaxYear:
+        Year:
           type: integer
-        Ref:
+        Value:
+          type: number
+        EvidenceRef:
           type: string
-        SourcePath:
-          type: string
-        SourceDocument:
-          type: string
-        Citation:
-          type: string
-      additionalProperties: true
-    OperatingModel:
+          description: Exact Forms.<Form>.Latest/Filings[n] canonical value reference. Omitted for a year gap.
+      additionalProperties: false
+    FunderList:
       type: object
-      description: Display operating model sourced from the selected full-return context when available.
       required:
-      - Form
-      - Resource
-      - Delivery
+      - EIN
+      - Funders
       properties:
-        Form:
-          type: string
-          enum:
-          - '990'
-          - 990EZ
-          - 990PF
-        TaxYear:
+        EIN:
           type: integer
-        Resource:
-          $ref: '#/components/schemas/OperatingModelClassification'
-        Delivery:
-          $ref: '#/components/schemas/OperatingModelClassification'
-        Modifiers:
+        Funders:
           type: array
           items:
-            $ref: '#/components/schemas/OperatingModelModifier'
+            $ref: '#/components/schemas/Funder'
+        FunderCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
+      additionalProperties: false
+    GranteeList:
+      type: object
+      required:
+      - EIN
+      - Grantees
+      properties:
+        EIN:
+          type: integer
+        Grantees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funder'
+        GranteeCount:
+          type: integer
+          description: Distinct counterparties across the whole match, not just the returned page.
+        Truncated:
+          type: boolean
+          description: True when Limit held back some of them.
+        TotalAmount:
+          type: number
       additionalProperties: false
     CharityFilings:
       type: object
@@ -1017,56 +949,124 @@ components:
         NextCursor:
           type: string
       additionalProperties: false
-    GranteeList:
+    OperatingModel:
       type: object
+      description: Display operating model sourced from the selected full-return context when available.
       required:
-      - EIN
-      - Grantees
+      - Form
+      - Resource
+      - Delivery
       properties:
-        EIN:
-          type: integer
-        Grantees:
-          type: array
-          items:
-            $ref: '#/components/schemas/Funder'
-        GranteeCount:
-          type: integer
-          description: Distinct counterparties across the whole match, not just the returned page.
-        Truncated:
-          type: boolean
-          description: True when Limit held back some of them.
-        TotalAmount:
-          type: number
-      additionalProperties: false
-    CharitySection:
-      type: object
-      required:
-      - Section
-      - Data
-      - EvidenceRefs
-      properties:
-        Section:
-          $ref: '#/components/schemas/SectionManifestItem'
-        Data:
-          description: Canonical section data. MoneyFlow responses conform to MoneyFlowData.
-          anyOf:
-          - $ref: '#/components/schemas/MoneyFlowData'
-          - $ref: '#/components/schemas/RelatedOrganizationsData'
-          - type: object
-            additionalProperties: true
-          - type: array
-            items: {}
-        EvidenceRefs:
-          type: array
-          items:
-            $ref: '#/components/schemas/EvidenceRef'
-        ScheduleIndex:
-          type: array
-          description: Stable lightweight index for a Schedules response; complete indexed schedules remain in paged Data.
-          items:
-            $ref: '#/components/schemas/ScheduleIndexItem'
-        NextCursor:
+        Form:
           type: string
+          enum:
+          - '990'
+          - 990EZ
+          - 990PF
+        TaxYear:
+          type: integer
+        Resource:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Delivery:
+          $ref: '#/components/schemas/OperatingModelClassification'
+        Modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OperatingModelModifier'
+      additionalProperties: false
+    RelationshipItem:
+      type: object
+      required:
+      - Organization
+      - Roles
+      - RelationshipType
+      - Confidences
+      - Evidence
+      properties:
+        Organization:
+          type: object
+          additionalProperties: true
+        Roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Source
+            - Target
+        RelationshipType:
+          type: string
+        Confidences:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Authoritative
+            - Strong
+        Evidence:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: false
+    EvidenceRef:
+      type: object
+      required:
+      - Ref
+      properties:
+        Collection:
+          type: string
+        Form:
+          type: string
+        TaxYear:
+          type: integer
+        Ref:
+          type: string
+        SourcePath:
+          type: string
+        SourceDocument:
+          type: string
+        Citation:
+          type: string
+      additionalProperties: true
+    FinancialTrend:
+      type: object
+      required:
+      - Revenue
+      - Expense
+      - Assets
+      - Liabilities
+      properties:
+        Revenue:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Expense:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+        Liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialTrendPoint'
+      additionalProperties: false
+    RelatedOrganizationsData:
+      type: object
+      required:
+      - Relationships
+      properties:
+        Relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipItem'
       additionalProperties: false
   responses:
     ErrorResponse:

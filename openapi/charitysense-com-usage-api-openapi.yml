@@ -44,27 +44,6 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
     UsageAllowance:
       type: object
       required:
@@ -115,6 +94,27 @@ components:
           $ref: '#/components/schemas/UsageAllowance'
         Advanced:
           $ref: '#/components/schemas/UsageAllowance'
+      additionalProperties: false
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
       additionalProperties: false
   securitySchemes:
     BearerAuth:

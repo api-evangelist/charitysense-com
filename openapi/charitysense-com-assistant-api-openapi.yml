@@ -140,6 +140,59 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
+    Error:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
+      additionalProperties: false
+    CharityQuestionRequest:
+      type: object
+      required:
+      - EIN
+      - Question
+      - Email
+      properties:
+        EIN:
+          oneOf:
+          - type: integer
+          - type: string
+        Question:
+          type: string
+          maxLength: 4000
+        Email:
+          type: string
+          format: email
+      additionalProperties: false
+    FeedbackResult:
+      type: object
+      required:
+      - FeedbackID
+      - Stored
+      - Notified
+      properties:
+        FeedbackID:
+          type: string
+        Stored:
+          type: boolean
+        Notified:
+          type: boolean
+      additionalProperties: false
     AssistantChatRequest:
       type: object
       required:
@@ -180,73 +233,6 @@ components:
               type: string
           additionalProperties: false
       additionalProperties: false
-    QuestionResult:
-      type: object
-      required:
-      - RequestID
-      - Stored
-      - Notified
-      properties:
-        RequestID:
-          type: string
-        Stored:
-          type: boolean
-        Notified:
-          type: boolean
-      additionalProperties: false
-    FeedbackResult:
-      type: object
-      required:
-      - FeedbackID
-      - Stored
-      - Notified
-      properties:
-        FeedbackID:
-          type: string
-        Stored:
-          type: boolean
-        Notified:
-          type: boolean
-      additionalProperties: false
-    CharityQuestionRequest:
-      type: object
-      required:
-      - EIN
-      - Question
-      - Email
-      properties:
-        EIN:
-          oneOf:
-          - type: integer
-          - type: string
-        Question:
-          type: string
-          maxLength: 4000
-        Email:
-          type: string
-          format: email
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
-      additionalProperties: false
     AgentFeedbackRequest:
       type: object
       required:
@@ -285,6 +271,20 @@ components:
           items:
             type: string
         SearchRecoveryEnabled:
+          type: boolean
+      additionalProperties: false
+    QuestionResult:
+      type: object
+      required:
+      - RequestID
+      - Stored
+      - Notified
+      properties:
+        RequestID:
+          type: string
+        Stored:
+          type: boolean
+        Notified:
           type: boolean
       additionalProperties: false
   responses:

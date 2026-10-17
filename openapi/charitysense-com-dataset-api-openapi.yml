@@ -49,37 +49,26 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
-    Stats:
+    Error:
       type: object
       required:
-      - Charities
-      - Filings
-      - ModalLatestYear
-      - ComputedAt
+      - detail
       properties:
-        Charities:
-          type: integer
-        Filings:
-          type: integer
-        SectorRevenue:
-          type: number
-        ProgramDollars:
-          type: number
-        ModalLatestYear:
-          type: integer
-        FilingsByForm:
-          type: object
-          additionalProperties:
-            type: integer
-        CountsApproximate:
-          type: boolean
-        SectorOverview:
-          $ref: '#/components/schemas/SectorOverview'
-        SectorComposition:
-          $ref: '#/components/schemas/SectorComposition'
-        ComputedAt:
-          type: string
-          format: date-time
+        detail:
+          oneOf:
+          - type: string
+          - type: object
+            properties:
+              ErrorCode:
+                type: string
+              Message:
+                type: string
+            additionalProperties: true
+          - type: array
+            description: FastAPI request-validation errors.
+            items:
+              type: object
+              additionalProperties: true
       additionalProperties: false
     SectorYear:
       type: object
@@ -141,23 +130,6 @@ components:
           additionalProperties:
             type: integer
       additionalProperties: false
-    Health:
-      type: object
-      required:
-      - Status
-      - SchemaVersion
-      - Documents
-      properties:
-        Status:
-          type: string
-          const: Healthy
-        SchemaVersion:
-          type: integer
-          const: 2
-        CompiledAt: {}
-        Documents:
-          type: integer
-      additionalProperties: false
     SectorComposition:
       type: object
       required:
@@ -186,6 +158,55 @@ components:
                 type: integer
             additionalProperties: false
       additionalProperties: false
+    Health:
+      type: object
+      required:
+      - Status
+      - SchemaVersion
+      - Documents
+      properties:
+        Status:
+          type: string
+          const: Healthy
+        SchemaVersion:
+          type: integer
+          const: 2
+        CompiledAt: {}
+        Documents:
+          type: integer
+      additionalProperties: false
+    Stats:
+      type: object
+      required:
+      - Charities
+      - Filings
+      - ModalLatestYear
+      - ComputedAt
+      properties:
+        Charities:
+          type: integer
+        Filings:
+          type: integer
+        SectorRevenue:
+          type: number
+        ProgramDollars:
+          type: number
+        ModalLatestYear:
+          type: integer
+        FilingsByForm:
+          type: object
+          additionalProperties:
+            type: integer
+        CountsApproximate:
+          type: boolean
+        SectorOverview:
+          $ref: '#/components/schemas/SectorOverview'
+        SectorComposition:
+          $ref: '#/components/schemas/SectorComposition'
+        ComputedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
     SectorOverview:
       type: object
       required:
@@ -208,27 +229,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SectorYear'
-      additionalProperties: false
-    Error:
-      type: object
-      required:
-      - detail
-      properties:
-        detail:
-          oneOf:
-          - type: string
-          - type: object
-            properties:
-              ErrorCode:
-                type: string
-              Message:
-                type: string
-            additionalProperties: true
-          - type: array
-            description: FastAPI request-validation errors.
-            items:
-              type: object
-              additionalProperties: true
       additionalProperties: false
   responses:
     ErrorResponse:
