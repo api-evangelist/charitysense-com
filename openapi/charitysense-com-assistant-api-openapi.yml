@@ -305,3 +305,9 @@ components:
 externalDocs:
   description: Agent integration guide and recommended workflow.
   url: https://data.charitysense.com/agents
+x-provenance:
+  method: harvested
+  publisher: CharitySense
+  source: https://data.charitysense.com/openapi.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
