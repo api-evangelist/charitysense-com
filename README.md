@@ -64,5 +64,127 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-CharitySense is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry) and added to the network as a stub for full-pipeline profiling.
-- https://charitysense.com/
+CharitySense is a product of Osci Labs LLC (US) with two public surfaces. charitysense.com is an edge-AI verification platform that plugs into cameras already installed at funded hospitals, schools, water wells and orphanages, processes video on-device, and gives donors, foundations, NGOs and governments live dashboards proving a funded project is actually running. data.charitysense.com is CharitySense Data, an agent-ready nonprofit due-diligence API over public IRS Form 990 filings for about 2.2 million U.S. nonprofits: charity search, bounded profile pages with lazily fetched sections, filing history, money-network and grant-flow evidence, related-organization discovery, dataset statistics and a paid assistant. It is a 21-operation OpenAPI 3.1.0 contract at https://data.charitysense.com/openapi.yaml; research reads need no key (1,000 per UTC day), Advanced operations need a paid key. The host also serves an RFC 9727 API catalog, an A2A-shaped agent card, ai-plugin.json and llms.txt.
+
+**Areas:** Non-Profit · Charities · Due Diligence · IRS Form 990 · Donor Research · Grants · Philanthropy · Open Data · Agents · A2A · Impact Verification · Edge AI
+
+## CharitySense on APIs.io
+
+Everything profiled for CharitySense is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/charitysense-com/](https://apis.io/providers/charitysense-com/)** — or go straight to one of the APIs or properties below.
+
+### APIs (5)
+
+- [CharitySense Assistant API](https://apis.io/apis/charitysense-com/charitysense-com-assistant-api/) — Paid Advanced operations. Each request consumes the token's daily Advanced allowance.
+- [CharitySense Dataset API](https://apis.io/apis/charitysense-com/charitysense-com-dataset-api/) — Service health and published dataset statistics. Statistics and top lists consume the Advanced allowance.
+- [CharitySense Discovery API](https://apis.io/apis/charitysense-com/charitysense-com-discovery-api/) — Identity search and related-organization discovery.
+- [CharitySense Profiles API](https://apis.io/apis/charitysense-com/charitysense-com-profiles-api/) — Canonical overlay profile and filing resources.
+- [CharitySense Usage API](https://apis.io/apis/charitysense-com/charitysense-com-usage-api/) — Authenticated token allowance and UTC-day usage.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [charitysense-data](https://apis.io/servers/charitysense-com/charitysense-data/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Charitysense Com Agentic Access](https://apis.io/agentic-access/charitysense-com/charitysense-com-agentic-access/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Charitysense Com Data Api Overlay](https://apis.io/overlays/charitysense-com/charitysense-com-data-api-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Charitysense Com Authentication](https://apis.io/security/charitysense-com/charitysense-com-authentication/)
+- [Charitysense Com Domain Security](https://apis.io/security/charitysense-com/charitysense-com-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Charitysense Com Plans Pricing](https://apis.io/plans/charitysense-com/charitysense-com-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Charitysense Com Rate Limits](https://apis.io/rate-limits/charitysense-com/charitysense-com-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://charitysense.com/)
+- [Documentation](https://data.charitysense.com/developers)
+- [Getting started](https://data.charitysense.com/agents)
+- [API reference](https://data.charitysense.com/docs)
+- [Pricing](https://data.charitysense.com/INSTRUCTIONS_FOR_AGENTS.md)
+- [Support](https://data.charitysense.com/contact)
+- [Blog](https://charitysense.com/insights)
+- [Privacy policy](https://data.charitysense.com/privacy)
+
+## API Evangelist rating
+
+**Kin Score 47.6** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 83.9 |
+| Contract quality | 49.5 |
+| Contract governance | 18.2 |
+| Operational transparency | 31.6 |
+| Developer ergonomics | 58.9 |
+| Access clarity | 42.1 |
+
+**Agent readiness 33.8** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | yes |
+| Consent Identity | — |
+| Agent Card | conformant |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 20.6** — Government & Public Sector
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/charitysense-com/](https://apis.io/providers/charitysense-com/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for CharitySense: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/charitysense-com/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
